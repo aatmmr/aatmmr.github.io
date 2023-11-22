@@ -5,7 +5,7 @@ export const SITE: Site = {
   author: "Maik Müller",
   desc: "Tutorials, Snippets and Ideas",
   title: "aatmmr.dev",
-  ogImage: "astropaper-og.jpg",
+  ogImage: "aatmmr-og.jpg",
   lightAndDarkMode: true,
   postPerPage:5,
 };
