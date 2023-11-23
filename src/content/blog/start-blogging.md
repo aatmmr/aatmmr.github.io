@@ -1,6 +1,6 @@
 ---
 author: Maik Müller
-pubDatetime: 2022-09-17T20:00:00Z
+pubDatetime: 2023-11-22T20:00:00Z
 title: Getting started with Blogging
 postSlug: start-blogging
 featured: false
