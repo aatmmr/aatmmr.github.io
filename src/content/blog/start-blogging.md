@@ -17,6 +17,6 @@ Make sure to subscribe the [RSS feed](https://aatmmr.github.io/rss.xml) if you w
 
 ### What about the stack?
 
-The blog is runs on [Astro](https://astro.build) infused with the [AstroPater Theme](https://astro.build/themes/details/astro-paper/). The page is hosted on [GitHub](https://github.com/aatmmr/aatmmr.github.io) and deployed via GitHub Actions and I will make sure to document how this is done properly.
+The blog is runs on [Astro](https://astro.build) infused with the [AstroPater Theme](https://astro.build/themes/details/astro-paper/). The page is hosted on [GitHub](https://github.com/aatmmr/aatmmr.github.io) and deployed via GitHub Actions and I will make sure to document how this is [done properly](./astro-with-github-actions-and-pages).
 
 Cheerio and happy reading 🤓
