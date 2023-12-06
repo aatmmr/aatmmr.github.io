@@ -1,6 +1,6 @@
 ---
 author: Maik Müller
-pubDatetime: 2023-11-26T20:00:00Z
+pubDatetime: 2023-12-06T20:00:00Z
 title: Deploy an Astro Site to GitHub Pages using GitHub Actions
 postSlug: astro-with-github-actions-and-pages
 featured: false
