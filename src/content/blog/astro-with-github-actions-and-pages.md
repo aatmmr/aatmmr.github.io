@@ -14,7 +14,7 @@ description: Learn how to build and deploy an Astro site to GitHub Pages with cu
 
 [Astro](https://astro.build) is a modern front-end framework for building fast, optimized websites. It allows you to write components using your favorite JavaScript framework (like React, Vue, or Svelte), but renders them as static HTML at build time for faster page loads. Additionally, Astro offers server-side rendering capabilities, and integrates well with popular tools and frameworks, enhancing performance and SEO.
 
-This blog is build with [Astro](https://astro.build) and deployed to [GitHub Pages](https://pages.github.com) using [GitHub Actions](https://github.com/features/actions). As promised in my [initial post](./start-blogging), I will describe how this site is deployed and what configuration need to be made to succeed, even with a custom domain in mind. Astro itself provides [detailed instructions](https://docs.astro.build/en/guides/deploy/github/) themselves which should be used as well.
+[This blog](https://github.com/aatmmr/aatmmr.github.io) is build with [Astro](https://astro.build) and deployed to [GitHub Pages](https://pages.github.com) using [GitHub Actions](https://github.com/features/actions). As promised in my [initial post](./start-blogging), I will describe how this site is deployed and what configuration need to be made to succeed, even with a custom domain in mind. Astro itself provides [detailed instructions](https://docs.astro.build/en/guides/deploy/github/) themselves which should be used as well.
 
 ## Prepare Project
 
@@ -26,11 +26,11 @@ npm create astro@latest -- --template satnaing/astro-paper
 
 to create the base code of this blog using the [Astro Paper theme](https://astro.build/themes/details/astro-paper/).
 
-Choose the repository name as `{your-handle}.github.io` because GitHub recognizes this as your personal page and provides the respective domain for free. You can, however, choose any other name if you use a custom domain without needing the url provided by GitHub, or are fine with the default url your page will be available at (`https://{your-handle}.github.io/{name-of-repository}`). 
+Choose the repository name as `{your-handle}.github.io` because GitHub recognizes this as your personal page and provides the respective domain for free. You can, however, choose any other name if you use a custom domain without needing the url provided by GitHub, or are fine with the default url your page will be available at `https://{your-handle}.github.io/{name-of-repository}`.
 
 This tutorial will use `{your-handle}.github.io` as repository name for simplicity.
 
-> Please not that the repository has to be public if you are using the free GitHub subscription. The repository can be private if you have a payed GitHub subscription, such as GitHub Pro for personal use from GitHub Teams on if the repository is located in an organization.
+> Please note that the repository has to be public if you are using the free GitHub plan. The repository can be private if you have a paid GitHub plan, such as GitHub Pro for personal use from GitHub Teams on if the repository is located in an organization.
 
 ## Enable GitHub Pages
 
@@ -45,7 +45,7 @@ By default, there should be no workflow available in the repository of an astro 
 
 ## Add Workflow that deploys Page
 
-Now that GitHub Actions is selected as source of GitHub Pages, a workflow needs to be added to the repository. Create a new workflow file, e.g. `.github/workflows/deploy-website.yml`, and paste the following code into the new file and commit the changes to the default branch.
+Now that GitHub Actions is selected as source of GitHub Pages, a workflow needs to be added to the repository. Create a new workflow file, e.g. `.github/workflows/deploy-website.yml`, and paste the following code into the new file and commit the changes to the default branch. Be aware that the workflow has to be on the default branch, in my case `main`, in order to be working properly - if not, nothing will be deployed.
 
 ```yaml
 name: Deploy Website to GitHub Pages
@@ -87,7 +87,9 @@ jobs:
 
 The workflow uses the [`withastro/action`](https://github.com/withastro/action) Action provided by Astro that builds the project ready to be deployed to GitHub Pages. Once the page is successfully build in the first job, GitHub's [`actions/deploy-pages`](https://github.com/actions/deploy-pages) Action deploys the site to GitHub Pages. Please note that the specified `permissions` as well as the `environment` information is required for the deployment to GitHub Pages.
 
-To see if it works go to the _Actions_ tab of the repository and check if the workflow is running. Once the workflow succeeded, the page is available at `https://{your-handle}.github.io` or the domain provided by GitHub if you are not using the specific repository name.
+To see if it works go to the _Actions_ tab of the repository and check if the workflow is running. Once the workflow succeeded, the page is available at `https://{your-handle}.github.io` or the domain provided by GitHub if you are not using the specific repository name. The easiest way is to get to the root of your repository in the GitHub UI and look for the url in the _About_ section as shown in the screenshot below.
+
+![](../../assets/articles/astro-with-pages-and-actions/url-in-repository-root@3x.png)
 
 ## Use Custom Domain
 
@@ -97,27 +99,43 @@ Don't be confused as we are going to set `{your-handle}.github.io` as target for
 
 ### Prepare DNS
 
-Go to the DNS settings of your domain and add the following `ANAME` and/or `CNAME` as well as IP's (each is a single entry). Choose as record name, i.e. subdomain, the value of your choice. I decided to use an apex domain so my record names are all `@`, except the record for `CNAME` where I use the subdomain `www`.
+The DNS settings for your domain need to be prepared. Depending on if you want to use a subdomain, such as, `www` and `blog` or if you want to use an apex domain, i.e. no subdomain, the DNS settings need respective entries which I like to unclutter as the documentation was not clear to me in the beginning. To get started, open the DNS settings of your domain and add the following entries depending on your desired setup.
 
-#### Apex Domain Configuration (`ANAME`)
+> Please be aware, that DNS updates can take multiple hours to take effect.
 
-Add the `ANAME` for the apex variant of you domain (`@`) using
+#### Use Subdomain only or in combination with Apex Domain (`CNAME`)
 
-```
-{your-handle}.github.io
-```
-
-#### Subdomain Configuration (`CNAME`)
-
-Add a `CNAME` record type for the `www` subdomain pointing to your GitHub Page with the value
+If you want to use a subdomain only, add a `CNAME` record type for the wanted subdomain pointing to your GitHub Page with the value
 
 ```
 {your-handle}.github.io
 ```
 
-#### **A** Record Type (IPv4)
+In case you want to use both, apex and subdomain, add this record next to your apex domain below. If not you are all set up and can move on to [Add Domain Configuration to Project](#add-domain-configuration-to-project).
 
-Add the `IPv4` related records and use you desired subdomain or `@` if you want to use an apex domain.
+#### Use Apex Domain
+
+To be able to use and apex domain, there are a few options you can choose from, i.e.
+
+- `ANAME` or `ALIAS` record,
+- `A` record (IPv4),
+- `AAAA` record (IPv6).
+
+Please read carefully the following options and add some in parallel if required or recommended.
+
+**`ANAME` or `ALIAS` Record**
+
+Add an `ANAME` or `ALIAS` record and set the subdomain as `@`. As value enter
+
+```
+{your-handle}.github.io
+```
+
+That's it and you can continue with the section [Add Domain Configuration to Project](#add-domain-configuration-to-project). If your DNS settings do not provide `ANAME` or `ALIAS` as record type add an `A` or `AAAA` record as described below.
+
+**`A` Record (IPv4)**
+
+Instead of `ALIAS` or `ANAME`, you can enter `A` records (`IPv4`) with `@` as subdomain. Add each of the IP's as separate entries.
 
 ```
 185.199.108.153
@@ -126,9 +144,9 @@ Add the `IPv4` related records and use you desired subdomain or `@` if you want 
 185.199.111.153
 ```
 
-#### **AAAA** Record Type (IPv6)
+**`AAAA` Record (IPv6)**
 
-Add the `IPv6` related records and use you desired subdomain or `@` if you want to use an apex domain.
+If you want to add `IPv6` support add the following IP's as `AAAA` record type and `@` as subdomain. Please add an `A` record in parallel as described above because `IPv6` is only slowly adopted.
 
 ```
 2606:50c0:8000::153
@@ -137,11 +155,9 @@ Add the `IPv6` related records and use you desired subdomain or `@` if you want 
 2606:50c0:8003::153
 ```
 
-The screenshot below is a practical example of my DNS settings of this site with all of the above mentioned settings. Please note that my DNS settings do not provide `ANAME` (or alternatively `ALIAS`) so it is missing in the screenshot.
+The screenshot below is a practical example of my DNS settings of this site with all of the above mentioned settings. Please note that my DNS settings do not provide `ANAME` (or alternatively `ALIAS`) so I added the `A` and `AAAA` records instead.
 
 ![GitHub Pages relevant DNS Settings](../../assets/articles/astro-with-pages-and-actions/dns-settings@3x.png)
-
-> Please be aware, that DNS updates can take multiple hours to take effect.
 
 ### Add Domain Configuration to Project
 
