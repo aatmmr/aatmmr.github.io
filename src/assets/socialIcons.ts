@@ -214,6 +214,14 @@ const socialIcons: SocialIcons = {
       35.742C26.303,37.858 28.9,41.873 28.997,47.662L29,48ZM40.814,7.186C42.376,8.748 43.009,10.648 42.228,11.428C41.447,12.209 39.548,11.576 37.986,10.014C36.424,8.452 35.791,6.552 36.572,5.772C37.353,4.991 39.252,5.624 40.814,7.186Z" style="fill:none;stroke-width:4.8px;"/>
     </g>
   </svg>`,
+  OpenSauced: `<svg class="icon-tabler" version="1.0" xmlns="http://www.w3.org/2000/svg"
+  width="32.000000pt" height="32.000000pt" viewBox="0 0 32.000000 32.000000"
+  preserveAspectRatio="xMidYMid meet">
+    <g transform="translate(0.000000,32.000000) scale(0.100000,-0.100000)"
+    fill="currentColor" stroke="none">
+      <path d="M142 253 c-25 -37 -81 -165 -84 -195 -3 -23 -2 -23 91 -21 52 2 99 7 103 11 5 5 6 51 2 102 -5 71 -12 98 -26 112 -27 27 -63 23 -86 -9z"/>
+    </g>
+  </svg>`,
 };
 
 export default socialIcons;

@@ -7,7 +7,7 @@ export const SITE: Site = {
   title: "aatmmr.dev",
   ogImage: "aatmmr-og.jpg",
   lightAndDarkMode: true,
-  postPerPage:5,
+  postPerPage: 5,
 };
 
 export const LOCALE = ["en-EN"]; // set to [] to use the environment default
@@ -42,6 +42,12 @@ export const SOCIALS: SocialObjects = [
     name: "Sessionize",
     href: "https://sessionize.com/maik-mueller/",
     linkTitle: `${SITE.title} on Sessionize`,
+    active: true,
+  },
+  {
+    name: "OpenSauced",
+    href: "https://app.opensauced.pizza/user/aatmmr?tab=contributions",
+    linkTitle: `${SITE.title} on OpenSauced`,
     active: true,
   },
 ];
