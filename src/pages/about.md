@@ -3,7 +3,7 @@ layout: ../layouts/AboutLayout.astro
 title: "About"
 ---
 
-My name is Maik and I am an DevOps Consultant and GitHub Flight Instructor at <a href="https://xpirit.com">Xebia|Xpirit</a>. I spend most of my day with GitHub deep diving into any corner of the platform becoming an Octowizard and like to share my knowledge and findings.
+My name is Maik, and I am a DevOps Consultant, GitHub Trainer, and GitHub Flight Instructor at <a href="https://xebia.com/digital-transformation/microsoft-services/">Xebia | Microsoft Services</a>. I spend most of my day with GitHub, deep-diving into any corner of the platform and becoming an Octowizard, and I like to share my knowledge and findings.
 
 ## Badges
 
