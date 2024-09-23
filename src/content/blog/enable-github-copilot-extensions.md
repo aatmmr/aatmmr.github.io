@@ -16,7 +16,7 @@ description: Learn how to enable GitHub Copilot Extensions in an enterprise and 
 
 [GitHub Copilot Extensions](https://github.blog/news-insights/product-news/introducing-github-copilot-extensions/) were recently announced as public beta and are now ready to be explored. As of [docs](https://docs.github.com/en/copilot/using-github-copilot/using-extensions-to-integrate-external-tools-with-copilot-chat), everyone can use and create GitHub Copilot extensions. Users with an Individual subscription can start right away without any further actions. Users with a GitHub Copilot Business or Enterprise subscription need their enterprise administrator and/or organization owners to enable this feature.
 
-This article will describe all the settings that enterprise administrators and organization owners need to take to enable their users to create GitHub Copilot Extensions. See the respective settings below, depending on whether you maintain an entire enterprise, organization, or both.
+This article will describe all the settings that enterprise administrators and organization owners need to take to enable their users to use GitHub Copilot Extensions. See the respective settings below, depending on whether you maintain an entire enterprise, organization, or both.
 
 ## Enterprise Level
 
@@ -60,11 +60,11 @@ In the policies sections,
 
 The following policies are available:
 
-- **Enabled** - enables access to copilot extensions for every member (3)
+- **Enabled** - enables access to Copilot Extensions for every member (3)
 - **Disabled** - members are not able to access this feature (4)
 
-Note that at the upper right corner of the organization settings denotes the parent enterprise managing these settings. If a settings is enforced at enterprise level, the settings cannot be changed at organization level. To indicate this to the users, the respective settings has a lock icon and is greyed out. In case you need to change the settings, you need to go to the enterprise settings or contact and enterprise admin.
+Note that at the upper right corner of the organization settings denotes the parent enterprise managing these settings. If a settings is enforced at enterprise level, the settings cannot be changed at organization level. To indicate this to the users, the respective settings have a lock icon and are greyed out. In case you need make changes, you need to go to the enterprise settings or contact and enterprise admin.
 
 ![GitHub Enterprise Settings Copilot Policies](../../assets/articles/enable-github-copilot-extensions/copilot-extensions-settings-organization-policies@2x.png)
 
-I hope this helps to navigate the settings and fulfill the wishes of you enterprise and organization members 😊.
+I hope this helps to navigate the settings and fulfill the wishes of your develoeprs 🧑‍💻.
