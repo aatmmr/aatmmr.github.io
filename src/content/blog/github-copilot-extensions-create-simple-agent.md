@@ -129,7 +129,7 @@ Let's break down the code:
 
 **Imports**
 
-The `createServer` function from the `node:http` module and the `createTextEvent` and `createDoneEvent` functions from the `@copilot-extensions/preview-sdk` module are imported. The `createTextEvent` function is used to create a text event sent to the chat, and the `createDoneEvent` function is used to create a done event sent to the chat. The `createDoneEvent` function is **important** as it indicates that the agent has finished processing the request.
+The `createServer` function from the `node:http` module and the `createTextEvent` and `createDoneEvent` functions from the `@copilot-extensions/preview-sdk` module are imported. The `createTextEvent` function is used to create a text event sent to the chat, and the `createDoneEvent` function is used to create a done event sent to the chat.
 
 **The Server Function**
 
@@ -139,7 +139,7 @@ For debugging purposes, the incoming request is logged. The request is then chec
 
 Any other call is assumed to be a chat prompt, and the server writes a text event with the message *"Hej 🤓 this is the extension speaking!"* to the response. The server then writes a done event to the response to notify the chat that the agent has finished processing the request. 
 
-Writing the done event is very important to notify the chat that the agent has finished processing the request. If the done event is not written, the chat will hang and wait for the agent to respond.
+Writing the done event is very **important** to notify the chat that the agent has finished processing the request. If the done event is not written, the chat will hang and wait for the agent to respond.
 
 **Starting the Server**
 
