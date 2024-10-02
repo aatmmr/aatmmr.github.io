@@ -13,10 +13,15 @@ export const SITE: Site = {
 export const LOCALE = ["en-EN"]; // set to [] to use the environment default
 
 export const LOGO_IMAGE = {
-  enable: false,
-  svg: true,
-  width: 216,
-  height: 46,
+  enable: true,
+  svg: false,
+  width: 48,
+  height: 48,
+};
+
+export const LOGO_LABEL = {
+  enable: true,
+  text: "aatmmr.dev",
 };
 
 export const SOCIALS: SocialObjects = [
