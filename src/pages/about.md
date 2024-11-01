@@ -14,4 +14,5 @@ The close work with GitHub comes naturally with certificates that I obtained dur
   <img src="/badges/github-administration_medium.png" alt="github actions administration badge">
   <img src="/badges/github-advanced-security_medium.png" alt="github actions advanced security badge">
   <img src="/badges/github-foundations-for-non-developers_medium.png" alt="github fundamentals certificate badge">
+  <img src="/badges/github-copilot_medium.png" alt="github copilot certificate badge">
 </div>
