@@ -6,23 +6,23 @@ import Layout from "@layouts/Layout.astro";
 <Layout>
   <main id="main-content">
     <section id="timer">
-      <h1>Countdown Timer</h1>
       <div id="controls">
-        <label for="time-select">Select time:</label>
-        <select id="time-select">
-          <option value="300">5 minutes</option>
-          <option value="600">10 minutes</option>
-          <option value="900">15 minutes</option>
-          <option value="1200">20 minutes</option>
-        </select>
+        <div id="time-controls">
+          <select id="time-select">
+            <option value="300">5 minutes</option>
+            <option value="600">10 minutes</option>
+            <option value="900">15 minutes</option>
+            <option value="1200">20 minutes</option>
+          </select>
+        </div>
+        <div id="type-controls">
+          <select id="type-select">
+            <option value="break">☕️ Break</option>
+            <option value="lab">🧑‍🔬 Lab</option>
+          </select>
+        </div>
         <button id="start-button">Start</button>
-      </div>
-      <div id="type-controls">
-        <label for="type-select">Select type:</label>
-        <select id="type-select">
-          <option value="break">☕️ Break</option>
-          <option value="lab">🧑‍🔬 Lab</option>
-        </select>
+        <button id="stop-button">Stop</button>
       </div>
       <div id="countdown"></div>
     </section>
@@ -33,6 +33,7 @@ import Layout from "@layouts/Layout.astro";
   const countdownElement = document.getElementById('countdown');
   const timeSelect = document.getElementById('time-select');
   const startButton = document.getElementById('start-button');
+  const stopButton = document.getElementById('stop-button');
   let timerInterval;
 
   function updateTimer(timeLeft) {
@@ -56,7 +57,13 @@ import Layout from "@layouts/Layout.astro";
     }, 1000);
   }
 
+  function stopTimer() {
+    clearInterval(timerInterval);
+    countdownElement.textContent = "Timer stopped";
+  }
+
   startButton.addEventListener('click', startTimer);
+  stopButton.addEventListener('click', stopTimer);
 </script>
 
 <style>
@@ -67,27 +74,28 @@ import Layout from "@layouts/Layout.astro";
     @apply text-3xl font-bold;
   }
   #controls {
-    @apply mt-4;
+    @apply mt-4 flex items-center justify-center gap-4;
   }
-  #controls label {
-    @apply mr-2;
+  #time-controls, #type-controls {
+    @apply flex flex-col items-start;
   }
-  #controls select {
+  #time-controls label, #type-controls label {
+    @apply mb-1;
+  }
+  #time-controls select, #type-controls select {
     @apply border rounded px-2 py-1;
   }
   #controls button {
-    @apply ml-2 px-4 py-2 rounded;
+    @apply border rounded px-4 py-2;
+    @apply flex items-center justify-center;
+  }
+  #time-controls select, #type-controls select, #controls button {
+    height: 32px;
   }
   #countdown {
     @apply text-4xl font-mono mt-4;
   }
-  #type-controls {
-    @apply mt-4;
-  }
-  #type-controls label {
-    @apply mr-2;
-  }
-  #type-controls select {
-    @apply border rounded px-2 py-1;
+  #stop-button {
+    @apply border rounded px-4 py-2;
   }
 </style>
