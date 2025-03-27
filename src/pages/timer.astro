@@ -1,0 +1,77 @@
+---
+import { useState, useEffect } from "react";
+import Layout from "@layouts/Layout.astro";
+---
+
+<Layout>
+  <main id="main-content">
+    <section id="timer">
+      <h1>Countdown Timer</h1>
+      <div id="controls">
+        <label for="time-select">Select time:</label>
+        <select id="time-select">
+          <option value="300">5 minutes</option>
+          <option value="600">10 minutes</option>
+          <option value="900">15 minutes</option>
+          <option value="1200">20 minutes</option>
+        </select>
+        <button id="start-button">Start</button>
+      </div>
+      <div id="countdown"></div>
+    </section>
+  </main>
+</Layout>
+
+<script>
+  const countdownElement = document.getElementById('countdown');
+  const timeSelect = document.getElementById('time-select');
+  const startButton = document.getElementById('start-button');
+  let timerInterval;
+
+  function updateTimer(timeLeft) {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    countdownElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  function startTimer() {
+    clearInterval(timerInterval);
+    let timeLeft = parseInt(timeSelect.value, 10);
+    updateTimer(timeLeft);
+
+    timerInterval = setInterval(() => {
+      if (timeLeft > 0) {
+        timeLeft -= 1;
+        updateTimer(timeLeft);
+      } else {
+        clearInterval(timerInterval);
+      }
+    }, 1000);
+  }
+
+  startButton.addEventListener('click', startTimer);
+</script>
+
+<style>
+  #timer {
+    @apply pb-6 pt-12 text-center;
+  }
+  #timer h1 {
+    @apply text-3xl font-bold;
+  }
+  #controls {
+    @apply mt-4;
+  }
+  #controls label {
+    @apply mr-2;
+  }
+  #controls select {
+    @apply border rounded px-2 py-1;
+  }
+  #controls button {
+    @apply ml-2 px-4 py-2 rounded;
+  }
+  #countdown {
+    @apply text-4xl font-mono mt-4;
+  }
+</style>
