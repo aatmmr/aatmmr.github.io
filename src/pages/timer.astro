@@ -17,6 +17,13 @@ import Layout from "@layouts/Layout.astro";
         </select>
         <button id="start-button">Start</button>
       </div>
+      <div id="type-controls">
+        <label for="type-select">Select type:</label>
+        <select id="type-select">
+          <option value="break">☕️ Break</option>
+          <option value="lab">🧑‍🔬 Lab</option>
+        </select>
+      </div>
       <div id="countdown"></div>
     </section>
   </main>
@@ -73,5 +80,14 @@ import Layout from "@layouts/Layout.astro";
   }
   #countdown {
     @apply text-4xl font-mono mt-4;
+  }
+  #type-controls {
+    @apply mt-4;
+  }
+  #type-controls label {
+    @apply mr-2;
+  }
+  #type-controls select {
+    @apply border rounded px-2 py-1;
   }
 </style>
