@@ -4,8 +4,8 @@ import Layout from "@layouts/Layout.astro";
 ---
 
 <Layout>
-  <main id="main-content">
-    <section id="timer">
+  <main id="main-content" class="w-full h-screen">
+    <section id="timer" class="w-full h-screen">
       <div id="controls">
         <div id="time-controls">
           <select id="time-select">
@@ -24,7 +24,7 @@ import Layout from "@layouts/Layout.astro";
         <button id="start-button">Start</button>
         <button id="stop-button">Stop</button>
       </div>
-      <div id="countdown"></div>
+      <div id="countdown" class="w-full h-screen flex items-start justify-center" style="margin-top: 40%;"></div>
     </section>
   </main>
 </Layout>
