@@ -46,10 +46,22 @@ import Layout from "@layouts/Layout.astro";
     const seconds = timeLeft % 60;
     const selectedType = document.getElementById("type-select").value;
     const emoji = selectedType === "break" ? "☕️" : "🧑‍🔬";
+    const totalTime = parseInt(timeSelect.value, 10);
+    const progressPercentage = (timeLeft / totalTime) * 100;
 
-    countdownElement.innerHTML = `<div class="countdown-emoji">${emoji}</div><div class="countdown-timer">${minutes}:${seconds
-      .toString()
-      .padStart(2, "0")}</div>`;
+    const segments = Array.from({ length: totalTime / 15 }, (_, i) => {
+      const segmentPosition = (i / (totalTime / 15)) * 100;
+      return `<div style="position: absolute; left: ${segmentPosition}%; width: 1px; height: 100%; background-color: #ffffff; z-index: 1;"></div>`;
+    }).join("");
+
+    countdownElement.innerHTML = `
+      <div>${emoji}</div>
+      <div>${minutes}:${seconds.toString().padStart(2, "0")}</div>
+      <div id="progress-bar-container" style="position: relative; width: 100%; height: 10px; background-color: #e0e0e0; margin-top: 10px;">
+        ${segments}
+        <div id="progress-bar" style="position: absolute; right: ${100 - progressPercentage}%; width: ${progressPercentage}%; height: 100%; background-color: #282728; z-index: 0;"></div>
+      </div>
+    `;
   }
 
   function startTimer() {
