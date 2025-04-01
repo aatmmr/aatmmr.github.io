@@ -80,7 +80,7 @@ import Layout from "@layouts/Layout.astro";
         clearInterval(timerInterval);
         countdownElement.textContent = "0:00";
         setTimeout(() => {
-          countdownElement.textContent = "⏲️ Choose a timer...";
+          countdownElement.textContent = "⏲️ time for...";
         }, 1000);
         startButton.style.display = ""; // Show start button
         stopButton.style.display = "none"; // Hide stop button
@@ -92,7 +92,7 @@ import Layout from "@layouts/Layout.astro";
     clearInterval(timerInterval);
     countdownElement.textContent = "Timer stopped";
     setTimeout(() => {
-      countdownElement.textContent = "⏲️ Choose a timer...";
+      countdownElement.textContent = "⏲️ time for...";
     }, 1000);
 
     startButton.style.display = ""; // Show start button
@@ -106,7 +106,7 @@ import Layout from "@layouts/Layout.astro";
   stopButton.style.display = "none";
 
   // Set default text for countdown element
-  countdownElement.textContent = "⏲️ Choose a timer...";
+  countdownElement.textContent = "⏲️ time for...";
 </script>
 
 <style>
