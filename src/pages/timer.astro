@@ -4,8 +4,8 @@ import Layout from "@layouts/Layout.astro";
 ---
 
 <Layout>
-  <main id="main-content" class="w-full h-screen">
-    <section id="timer" class="w-full h-screen">
+  <main id="main-content" class="h-screen w-full">
+    <section id="timer" class="h-screen w-full">
       <div id="controls">
         <div id="time-controls">
           <select id="time-select">
@@ -24,22 +24,29 @@ import Layout from "@layouts/Layout.astro";
         <button id="start-button">Start</button>
         <button id="stop-button">Stop</button>
       </div>
-      <div id="countdown" class="w-full h-screen flex items-start justify-center" style="margin-top: 40%;"></div>
+      <div
+        id="countdown"
+        class="flex h-screen w-full items-start justify-center"
+        style="margin-top: 40%;"
+      >
+      </div>
     </section>
   </main>
 </Layout>
 
 <script>
-  const countdownElement = document.getElementById('countdown');
-  const timeSelect = document.getElementById('time-select');
-  const startButton = document.getElementById('start-button');
-  const stopButton = document.getElementById('stop-button');
+  const countdownElement = document.getElementById("countdown");
+  const timeSelect = document.getElementById("time-select");
+  const startButton = document.getElementById("start-button");
+  const stopButton = document.getElementById("stop-button");
   let timerInterval;
 
   function updateTimer(timeLeft) {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
-    countdownElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    countdownElement.textContent = `${minutes}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
   }
 
   function startTimer() {
@@ -54,6 +61,9 @@ import Layout from "@layouts/Layout.astro";
       } else {
         clearInterval(timerInterval);
         countdownElement.textContent = "0:00";
+        setTimeout(() => {
+          countdownElement.textContent = "⏲️ Choose a timer...";
+        }, 1000);
       }
     }, 1000);
   }
@@ -61,10 +71,13 @@ import Layout from "@layouts/Layout.astro";
   function stopTimer() {
     clearInterval(timerInterval);
     countdownElement.textContent = "Timer stopped";
+    setTimeout(() => {
+      countdownElement.textContent = "⏲️ Choose a timer...";
+    }, 1000);
   }
 
-  startButton.addEventListener('click', startTimer);
-  stopButton.addEventListener('click', stopTimer);
+  startButton.addEventListener("click", startTimer);
+  stopButton.addEventListener("click", stopTimer);
 
   // Set default text for countdown element
   countdownElement.textContent = "⏲️ Choose a timer...";
@@ -80,26 +93,31 @@ import Layout from "@layouts/Layout.astro";
   #controls {
     @apply mt-4 flex items-center justify-center gap-4;
   }
-  #time-controls, #type-controls {
+  #time-controls,
+  #type-controls {
     @apply flex flex-col items-start;
   }
-  #time-controls label, #type-controls label {
+  #time-controls label,
+  #type-controls label {
     @apply mb-1;
   }
-  #time-controls select, #type-controls select {
-    @apply border rounded px-2 py-1;
+  #time-controls select,
+  #type-controls select {
+    @apply rounded border px-2 py-1;
   }
   #controls button {
-    @apply border rounded px-4 py-2;
+    @apply rounded border px-4 py-2;
     @apply flex items-center justify-center;
   }
-  #time-controls select, #type-controls select, #controls button {
+  #time-controls select,
+  #type-controls select,
+  #controls button {
     height: 32px;
   }
   #countdown {
-    @apply text-4xl font-mono mt-4;
+    @apply mt-4 font-mono text-4xl;
   }
   #stop-button {
-    @apply border rounded px-4 py-2;
+    @apply rounded border px-4 py-2;
   }
 </style>
