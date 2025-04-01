@@ -53,6 +53,7 @@ import Layout from "@layouts/Layout.astro";
         updateTimer(timeLeft);
       } else {
         clearInterval(timerInterval);
+        countdownElement.textContent = "0:00";
       }
     }, 1000);
   }
