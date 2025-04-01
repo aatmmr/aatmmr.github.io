@@ -21,8 +21,8 @@ import Layout from "@layouts/Layout.astro";
             <option value="lab">🧑‍🔬 Lab</option>
           </select>
         </div>
-        <button id="start-button">Start</button>
-        <button id="stop-button">Stop</button>
+        <button id="start-button">▶️ Start</button>
+        <button id="stop-button">⏹️ Stop </button>
       </div>
       <div
         id="countdown"
@@ -130,5 +130,10 @@ import Layout from "@layouts/Layout.astro";
   }
   #stop-button {
     @apply rounded border px-4 py-2;
+    width: 110px;
+  }
+  #start-button {
+    @apply rounded border px-4 py-2;
+    width: 110px;
   }
 </style>
