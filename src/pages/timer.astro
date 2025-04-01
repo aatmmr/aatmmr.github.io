@@ -54,6 +54,9 @@ import Layout from "@layouts/Layout.astro";
     let timeLeft = parseInt(timeSelect.value, 10);
     updateTimer(timeLeft);
 
+    startButton.style.display = "none"; // Hide start button
+    stopButton.style.display = ""; // Show stop button
+
     timerInterval = setInterval(() => {
       if (timeLeft > 0) {
         timeLeft -= 1;
@@ -64,6 +67,8 @@ import Layout from "@layouts/Layout.astro";
         setTimeout(() => {
           countdownElement.textContent = "⏲️ Choose a timer...";
         }, 1000);
+        startButton.style.display = ""; // Show start button
+        stopButton.style.display = "none"; // Hide stop button
       }
     }, 1000);
   }
@@ -74,10 +79,16 @@ import Layout from "@layouts/Layout.astro";
     setTimeout(() => {
       countdownElement.textContent = "⏲️ Choose a timer...";
     }, 1000);
+
+    startButton.style.display = ""; // Show start button
+    stopButton.style.display = "none"; // Hide stop button
   }
 
   startButton.addEventListener("click", startTimer);
   stopButton.addEventListener("click", stopTimer);
+
+  // Set initial visibility of buttons
+  stopButton.style.display = "none";
 
   // Set default text for countdown element
   countdownElement.textContent = "⏲️ Choose a timer...";
