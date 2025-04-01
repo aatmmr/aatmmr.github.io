@@ -44,9 +44,12 @@ import Layout from "@layouts/Layout.astro";
   function updateTimer(timeLeft) {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
-    countdownElement.textContent = `${minutes}:${seconds
+    const selectedType = document.getElementById("type-select").value;
+    const emoji = selectedType === "break" ? "☕️" : "🧑‍🔬";
+
+    countdownElement.innerHTML = `<div class="countdown-emoji">${emoji}</div><div class="countdown-timer">${minutes}:${seconds
       .toString()
-      .padStart(2, "0")}`;
+      .padStart(2, "0")}</div>`;
   }
 
   function startTimer() {
@@ -127,6 +130,7 @@ import Layout from "@layouts/Layout.astro";
   }
   #countdown {
     @apply mt-4 font-mono text-4xl;
+    display: block
   }
   #stop-button {
     @apply rounded border px-4 py-2;
