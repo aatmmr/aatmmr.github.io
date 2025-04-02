@@ -141,7 +141,7 @@ import Layout from "@layouts/Layout.astro";
     height: 32px;
   }
   #countdown {
-    @apply mt-4 font-mono text-4xl;
+    @apply mt-4 font-mono text-6xl;
     display: block
   }
   #stop-button {
@@ -151,5 +151,10 @@ import Layout from "@layouts/Layout.astro";
   #start-button {
     @apply rounded border px-4 py-2;
     width: 110px;
+  }
+  button:hover, select:hover {
+    border-width: 3px; /* Make border thicker on hover */
+    border-color: #FFA500; /* Orange border color used on the website */
+    cursor: pointer;
   }
 </style>
