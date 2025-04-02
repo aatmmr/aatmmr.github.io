@@ -58,9 +58,13 @@ import Layout from "@layouts/Layout.astro";
   const timeSelect = document.getElementById("time-select");
   const startButton = document.getElementById("start-button");
   const stopButton = document.getElementById("stop-button");
-  let timerInterval;
 
-  function updateTimer(timeLeft) {
+  const countdownDefaultText = "⏲️ time for...";
+  const countdownStopText = "⏹️ Timer stopped";
+
+  let timerInterval: string | number | NodeJS.Timeout | undefined;
+
+  function updateTimer(timeLeft: number) {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
     const selectedType = document.getElementById("type-select").value;
@@ -88,8 +92,8 @@ import Layout from "@layouts/Layout.astro";
     let timeLeft = parseInt(timeSelect.value, 10);
     updateTimer(timeLeft);
 
-    startButton.style.display = "none"; // Hide start button
-    stopButton.style.display = ""; // Show stop button
+    startButton.style.display = "none";
+    stopButton.style.display = "";
 
     timerInterval = setInterval(() => {
       if (timeLeft > 0) {
@@ -99,33 +103,29 @@ import Layout from "@layouts/Layout.astro";
         clearInterval(timerInterval);
         countdownElement.textContent = "0:00";
         setTimeout(() => {
-          countdownElement.textContent = "⏲️ time for...";
+          countdownElement.textContent = countdownDefaultText;
         }, 1000);
-        startButton.style.display = ""; // Show start button
-        stopButton.style.display = "none"; // Hide stop button
+        startButton.style.display = "";
+        stopButton.style.display = "none";
       }
     }, 1000);
   }
 
   function stopTimer() {
     clearInterval(timerInterval);
-    countdownElement.textContent = "Timer stopped";
+    countdownElement.textContent = countdownStopText;
     setTimeout(() => {
-      countdownElement.textContent = "⏲️ time for...";
+      countdownElement.textContent = countdownDefaultText;
     }, 1000);
 
-    startButton.style.display = ""; // Show start button
-    stopButton.style.display = "none"; // Hide stop button
+    startButton.style.display = "";
+    stopButton.style.display = "none";
   }
 
   startButton.addEventListener("click", startTimer);
   stopButton.addEventListener("click", stopTimer);
-
-  // Set initial visibility of buttons
   stopButton.style.display = "none";
-
-  // Set default text for countdown element
-  countdownElement.textContent = "⏲️ time for...";
+  countdownElement.textContent = countdownDefaultText;
 </script>
 
 <style>
