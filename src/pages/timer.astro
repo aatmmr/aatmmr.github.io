@@ -1,10 +1,29 @@
 ---
-import { useState, useEffect } from "react";
+import { LOGO_IMAGE, LOGO_LABEL, SITE } from "@config";
 import Layout from "@layouts/Layout.astro";
 ---
 
 <Layout>
   <main id="main-content" class="h-screen w-full">
+    <section id="header">
+      <div class="header-logo" style="display: flex; justify-content: center; align-items: center;">
+        <a href="/" class="logo whitespace-nowrap" style="display: flex; align-items: center;">
+          {
+        LOGO_IMAGE.enable ? (
+          <div style="display: flex; align-items: center; padding-top: 25px;">
+            <img
+          src={`/${LOGO_IMAGE.svg ? "logo.svg" : "logo.png"}`}
+          alt={SITE.title}
+          width={LOGO_IMAGE.width}
+          height={LOGO_IMAGE.height}
+            />
+            { LOGO_LABEL.enable ? <span style="margin-left: 10px;">{LOGO_LABEL.text}</span> : null }
+          </div>
+        ) : null
+          } 
+        </a>
+      </div>
+    </section>
     <section id="timer" class="h-screen w-full">
       <div id="controls">
         <div id="time-controls">
@@ -111,7 +130,7 @@ import Layout from "@layouts/Layout.astro";
 
 <style>
   #timer {
-    @apply pb-6 pt-12 text-center;
+    @apply pb-6 pt-4 text-center;
   }
   #timer h1 {
     @apply text-3xl font-bold;
@@ -120,7 +139,7 @@ import Layout from "@layouts/Layout.astro";
     @apply mt-4 flex items-center justify-center gap-4;
   }
   #time-controls,
-  #type-controls {
+  #te-controls {
     @apply flex flex-col items-start;
   }
   #time-controls label,
