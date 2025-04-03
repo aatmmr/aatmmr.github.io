@@ -89,7 +89,7 @@ import Layout from "@layouts/Layout.astro";
 
   function startTimer() {
     clearInterval(timerInterval);
-    let timeLeft = parseInt((timeSelect as HTMLSelectElement).value, 10);
+    let timeLeft = parseInt(timeSelect.value, 10);
     updateTimer(timeLeft);
 
     startButton.style.display = "none";
