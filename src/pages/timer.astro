@@ -23,10 +23,14 @@ import Layout from "@layouts/Layout.astro";
         <button id="start-button">▶️ Start</button>
         <button id="stop-button">⏹️ Stop </button>
       </div>
+          <!-- New Quotes Section -->
+    <section id="quotes" class="w-full text-center mt-0">
+      <div id="quote-container" class="text-lg italic">Fetching quotes...</div>
+    </section>
       <div
         id="countdown"
         class="flex h-screen w-full items-start justify-center"
-        style="margin-top: 40%;"
+        style="margin-top: 20%;"
       >
       </div>
     </section>
@@ -34,22 +38,25 @@ import Layout from "@layouts/Layout.astro";
 </Layout>
 
 <script>
-  const countdownElement = document.getElementById("countdown")!;
-  const timeSelect = document.getElementById("time-select")! as HTMLSelectElement;
-  const startButton = document.getElementById("start-button")!;
-  const stopButton = document.getElementById("stop-button")!;
+  const countdownElement = document.getElementById("countdown");
+  const timeSelect = document.getElementById("time-select");
+  const startButton = document.getElementById("start-button");
+  const stopButton = document.getElementById("stop-button");
 
   const countdownDefaultText = "⏲️ time for...";
   const countdownStopText = "⏹️ Timer stopped";
 
-  let timerInterval: string | number | NodeJS.Timeout | undefined;
+  let timerInterval: NodeJS.Timeout | undefined;
 
   function updateTimer(timeLeft: number) {
+    if (!countdownElement) return;
+
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
-    const selectedType = (document.getElementById("type-select") as HTMLSelectElement).value;
+    const typeSelectElement = document.getElementById("type-select");
+    const selectedType = typeSelectElement ? (typeSelectElement as HTMLSelectElement).value : "";
     const emoji = selectedType === "break" ? "☕️" : "🧑‍🔬";
-    const totalTime = parseInt(timeSelect.value, 10);
+    const totalTime = parseInt((timeSelect as HTMLSelectElement).value, 10);
     const progressPercentage = (timeLeft / totalTime) * 100;
 
     const segments = Array.from({ length: totalTime / 15 }, (_, i) => {
@@ -65,15 +72,27 @@ import Layout from "@layouts/Layout.astro";
         <div id="progress-bar" style="position: absolute; right: ${100 - progressPercentage}%; width: ${progressPercentage}%; height: 100%; background-color: #282728; z-index: 0;"></div>
       </div>
     `;
+
+    // Show quotes only when the timer is running
+    const quotesSection = document.getElementById("quotes");
+    if (timeLeft > 0 && quotesSection) {
+      quotesSection.style.display = "block";
+    } else if (quotesSection) {
+      quotesSection.style.display = "none";
+    }
   }
 
   function startTimer() {
     clearInterval(timerInterval);
-    let timeLeft = parseInt(timeSelect.value, 10);
+    let timeLeft = parseInt((timeSelect as HTMLSelectElement).value, 10);
     updateTimer(timeLeft);
 
-    startButton.style.display = "none";
-    stopButton.style.display = "";
+    if(startButton) {
+      startButton.style.display = "none";
+    }
+    if(stopButton) {
+      stopButton.style.display = "";
+    }
 
     timerInterval = setInterval(() => {
       if (timeLeft > 0) {
@@ -81,31 +100,102 @@ import Layout from "@layouts/Layout.astro";
         updateTimer(timeLeft);
       } else {
         clearInterval(timerInterval);
-        countdownElement.textContent = "0:00";
+        if (countdownElement) countdownElement.textContent = "0:00";
         setTimeout(() => {
-          countdownElement.textContent = countdownDefaultText;
+          if (countdownElement) countdownElement.textContent = countdownDefaultText;
         }, 1000);
-        startButton.style.display = "";
-        stopButton.style.display = "none";
+        if (startButton) {
+          startButton.style.display = "";
+        }
+        if (stopButton) {
+          stopButton.style.display = "none";
+        }
       }
     }, 1000);
   }
 
   function stopTimer() {
     clearInterval(timerInterval);
-    countdownElement.textContent = countdownStopText;
+    if (countdownElement) countdownElement.textContent = countdownStopText;
     setTimeout(() => {
-      countdownElement.textContent = countdownDefaultText;
+      if (countdownElement) countdownElement.textContent = countdownDefaultText;
     }, 1000);
 
-    startButton.style.display = "";
+    if (startButton) {
+      startButton.style.display = "";
+    }
+    
+    if (stopButton) {
+      stopButton.style.display = "none";
+    }
+    // Hide quotes when the timer stops
+    const quotesSection = document.getElementById("quotes");
+    if (quotesSection) quotesSection.style.display = "none";
+  }
+
+  // Initially hide the quotes section
+  const quotesSection = document.getElementById("quotes");
+  if (quotesSection) quotesSection.style.display = "none";
+
+  if (startButton) {
+    startButton.addEventListener("click", startTimer);
+  }
+  if (stopButton) {
+    stopButton.addEventListener("click", stopTimer);
+  }
+  if (stopButton) {
     stopButton.style.display = "none";
   }
 
-  startButton.addEventListener("click", startTimer);
-  stopButton.addEventListener("click", stopTimer);
-  stopButton.style.display = "none";
-  countdownElement.textContent = countdownDefaultText;
+  if (countdownElement) countdownElement.textContent = countdownDefaultText;
+
+  const quoteContainer = document.getElementById("quote-container");
+  const API_KEY = "AIzaSyB4LhuNf4_n0yoSXWwAwnNR7XC7A71-TDo";
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+
+  async function fetchQuote() {
+    if (!quoteContainer) return;
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: "Get an encouraging comment about solving the problem, assignment or task at hand. It should be between 3 and 12 words and only return a single quote. Be really creative and witty. E.g. mix it up with quotes from Sheldon from the Big Bang Theory tv series or Hulk Hogan. But do not be sexist or racist.",
+                },
+              ],
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch quote");
+      }
+
+      const data = await response.json();
+      const quote = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (quote) {
+        quoteContainer.textContent = quote;
+      } else {
+        quoteContainer.textContent = "No quote available at the moment.";
+      }
+    } catch (error) {
+      console.error("Error fetching quote:", error);
+      quoteContainer.textContent = "Error fetching quote.";
+    }
+  }
+
+  // Fetch a new quote every 30 seconds
+  setInterval(fetchQuote, 60000);
+  fetchQuote(); // Initial fetch
 </script>
 
 <style>
@@ -155,5 +245,14 @@ import Layout from "@layouts/Layout.astro";
     border-width: 3px; /* Make border thicker on hover */
     border-color: #FFA500; /* Orange border color used on the website */
     cursor: pointer;
+  }
+  #quotes {
+    @apply pb-6 pt-4 text-center;
+  }
+  #quotes h2 {
+    @apply text-2xl font-bold;
+  }
+  #quote-container {
+    @apply text-lg italic;
   }
 </style>
