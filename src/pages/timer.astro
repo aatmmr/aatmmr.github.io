@@ -5,9 +5,9 @@ import Layout from "@layouts/Layout.astro";
 <Layout>
   <main id="main-content" class="h-screen w-full">
     <section id="timer" class="h-screen w-full">
-      <div id="controls">
-        <div id="time-controls">
-          <select id="time-select">
+      <div id="controls" class="mt-4 flex items-center justify-center gap-4">
+        <div id="time-controls" class="flex flex-col items-start">
+          <select id="time-select" class="rounded border px-2 py-1">
             <option value="300">5 minutes</option>
             <option value="600">10 minutes</option>
             <option value="900">15 minutes</option>
@@ -75,7 +75,7 @@ import Layout from "@layouts/Layout.astro";
 
     // Show quotes only when the timer is running
     const quotesSection = document.getElementById("quotes");
-    if (timeLeft > 0 && quotesSection) {
+    if (timeLeft > 0 && (selectedType === "lab" || selectedType !== "break") && quotesSection) {
       quotesSection.style.display = "block";
     } else if (quotesSection) {
       quotesSection.style.display = "none";
