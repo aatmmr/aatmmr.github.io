@@ -6,6 +6,9 @@ import Layout from "@layouts/Layout.astro";
   <main id="main-content" class="h-screen w-full">
     <section id="timer" class="h-screen w-full">
       <div id="controls">
+        <div id="theme-switch-container" style="display: inline-block;">
+          <button id="theme-switch" class="rounded border px-4 py-2">🌝</button>
+        </div>
         <div id="time-controls">
           <select id="time-select">
             <option value="300">5 minutes</option>
@@ -38,6 +41,7 @@ import Layout from "@layouts/Layout.astro";
   const timeSelect = document.getElementById("time-select")! as HTMLSelectElement;
   const startButton = document.getElementById("start-button")!;
   const stopButton = document.getElementById("stop-button")!;
+  const themeSwitch = document.getElementById("theme-switch");
 
   const countdownDefaultText = "⏲️ time for...";
   const countdownStopText = "⏹️ Timer stopped";
@@ -106,9 +110,55 @@ import Layout from "@layouts/Layout.astro";
   stopButton.addEventListener("click", stopTimer);
   stopButton.style.display = "none";
   countdownElement.textContent = countdownDefaultText;
+
+  themeSwitch.addEventListener("click", () => {
+    const currentTheme = document.documentElement.getAttribute("data-theme");
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", newTheme);
+    themeSwitch.textContent = newTheme === "dark" ? "☀️" : "🌝";
+  });
 </script>
 
 <style>
+  :root {
+    --dropdown-bg-light: #ffffff;
+    --dropdown-bg-dark: #333333;
+    --dropdown-text-light: #000000;
+    --dropdown-text-dark: #ffffff;
+    --progress-bar-bg-light: #e0e0e0;
+    --progress-bar-bg-dark: #333333;
+    --progress-bar-fill-light: #282728;
+    --progress-bar-fill-dark: #ffa500;
+  }
+
+  [data-theme="light"] {
+    --dropdown-bg: var(--dropdown-bg-light);
+    --dropdown-text: var(--dropdown-text-light);
+    --progress-bar-bg: var(--progress-bar-bg-light);
+    --progress-bar-fill: var(--progress-bar-fill-light);
+  }
+
+  [data-theme="dark"] {
+    --dropdown-bg: var(--dropdown-bg-dark);
+    --dropdown-text: var(--dropdown-text-dark);
+    --progress-bar-bg: var(--progress-bar-bg-dark);
+    --progress-bar-fill: var(--progress-bar-fill-dark);
+  }
+
+  #time-controls select,
+  #type-controls select {
+    background-color: var(--dropdown-bg);
+    color: var(--dropdown-text);
+  }
+
+  #progress-bar-container {
+    background-color: var(--progress-bar-bg);
+  }
+
+  #progress-bar {
+    background-color: var(--progress-bar-fill);
+  }
+
   #timer {
     @apply pb-6 pt-4 text-center;
   }
