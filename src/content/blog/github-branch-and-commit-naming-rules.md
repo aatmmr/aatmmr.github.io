@@ -66,7 +66,7 @@ This article shall help to get started to setup such rules and derive own rulese
 
    - ID consists of 2 digits
    - Index is an integer with up to four digits
-   - Description consits of characters and numbers and no spaces following the rules of GitHub. Slashes are not allowed
+   - Description consists of characters and numbers and no spaces following the rules of GitHub. Slashes are not allowed
 
    ## Examples
 
