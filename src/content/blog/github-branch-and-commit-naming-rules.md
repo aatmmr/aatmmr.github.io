@@ -65,7 +65,7 @@ This article shall help to get started to setup such rules and derive own rulese
    Create a regex expression that limits a name to the following format: ID-index-description.
 
    - ID consists of 2 digits
-   - Index is an integer with up to for digits
+   - Index is an integer with up to four digits
    - Description consits of characters and numbers and no spaces following the rules of GitHub. Slashes are not allowed
 
    ## Examples
