@@ -127,3 +127,21 @@ The error messages displayed above are exclusively visible when developers are a
 **Commit Message**
 
 ![GitHub Branch Rulesets](../../assets/articles/github-branch-and-commit-naming-rules/15-ruleset-commit-local-error@2x.png)
+
+## Limitations in Error Readability
+
+At the time of writing this article, the error messages are not necessarily straightforward for developers to comprehend. The WebUI and terminal displays the regex expression rather than providing a detailed description of the rule, which can be challenging for developers unfamiliar with regular expressions.
+
+Furthermore, when utilizing the built-in Git tooling within Integrated Development Environments (IDEs), such as Visual Studio Code, the error messages can become even more cryptic. For instance, when pushing an invalid branch name or commit message, the error window does not display any related information,
+
+![GitHub Branch Rulesets](../../assets/articles/github-branch-and-commit-naming-rules/16-ruleset-branch-vscode-error@2x.png)
+
+even pointing to a wrong cause due to unsynchronized refs. When opening the Git Log, the output of the git log is shown with the error - still in the same "cryptic" format as in the WebUI or terminal.
+
+**Branch Name**
+
+![GitHub Branch Rulesets](../../assets/articles/github-branch-and-commit-naming-rules/17-ruleset-branch-vscode-error-log@2x.png)
+
+**Commit Message**
+
+![GitHub Branch Rulesets](../../assets/articles/github-branch-and-commit-naming-rules/18-ruleset-commit-vscode-error-log@2x.png)
