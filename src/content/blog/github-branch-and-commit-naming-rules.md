@@ -97,7 +97,7 @@ This article shall help to get started to setup such rules and derive own rulese
 
 ## Restrict Commit Message Format
 
-1. Create a regex expression that enforces convetional commits, such as `^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert|other)(\([a-zA-Z0-9\-]+\))?:\s.+$`.
+1. Create a regex expression that enforces conventional commits, such as `^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert|other)(\([a-zA-Z0-9\-]+\))?:\s.+$`.
 2. Navigate back to the rule settings and edit the previous rule
 3. Scroll to "Restrictions" and check "Restrict commit metadata" in the "Restrictions" section
 4. Click "Add restriction"
