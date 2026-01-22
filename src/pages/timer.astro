@@ -23,8 +23,12 @@ import Layout from "@layouts/Layout.astro";
             <option value="lab">🧑‍🔬 Lab</option>
           </select>
         </div>
+        <div id="target-time-controls">
+          <input type="time" id="target-time" placeholder="Target time" />
+        </div>
         <button id="start-button">▶️ Start</button>
         <button id="stop-button">⏹️ Stop </button>
+        <button id="reset-button">🔄 Reset</button>
       </div>
       <div
         id="countdown"
@@ -41,10 +45,14 @@ import Layout from "@layouts/Layout.astro";
   const timeSelect = document.getElementById("time-select")! as HTMLSelectElement;
   const startButton = document.getElementById("start-button")!;
   const stopButton = document.getElementById("stop-button")!;
+  const resetButton = document.getElementById("reset-button")!;
   const themeSwitch = document.getElementById("theme-switch")!;
+  const targetTimeInput = document.getElementById("target-time")! as HTMLInputElement;
 
   const countdownDefaultText = "⏲️ time for...";
   const countdownStopText = "⏹️ Timer stopped";
+  const sessionStartingText = "Session starting soon...";
+  const targetTimeErrorText = "⚠️ Target time must be in the future";
 
   let timerInterval: string | number | NodeJS.Timeout | undefined;
 
@@ -73,7 +81,29 @@ import Layout from "@layouts/Layout.astro";
 
   function startTimer() {
     clearInterval(timerInterval);
-    let timeLeft = parseInt(timeSelect.value, 10);
+    let timeLeft: number;
+
+    // Check if target time is set
+    if (targetTimeInput.value) {
+      const now = new Date();
+      const [hours, minutes] = targetTimeInput.value.split(":").map(Number);
+      const targetDate = new Date();
+      targetDate.setHours(hours, minutes, 0, 0);
+
+      // Validate target time is in the future
+      if (targetDate <= now) {
+        countdownElement.textContent = targetTimeErrorText;
+        setTimeout(() => {
+          countdownElement.textContent = countdownDefaultText;
+        }, 2000);
+        return;
+      }
+
+      timeLeft = Math.floor((targetDate.getTime() - now.getTime()) / 1000);
+    } else {
+      timeLeft = parseInt(timeSelect.value, 10);
+    }
+
     updateTimer(timeLeft);
 
     startButton.style.display = "none";
@@ -85,10 +115,7 @@ import Layout from "@layouts/Layout.astro";
         updateTimer(timeLeft);
       } else {
         clearInterval(timerInterval);
-        countdownElement.textContent = "0:00";
-        setTimeout(() => {
-          countdownElement.textContent = countdownDefaultText;
-        }, 1000);
+        countdownElement.textContent = sessionStartingText;
         startButton.style.display = "";
         stopButton.style.display = "none";
       }
@@ -106,10 +133,36 @@ import Layout from "@layouts/Layout.astro";
     stopButton.style.display = "none";
   }
 
+  function resetTimer() {
+    clearInterval(timerInterval);
+    targetTimeInput.value = "";
+    timeSelect.value = "300";
+    timeSelect.disabled = false;
+    countdownElement.textContent = countdownDefaultText;
+    startButton.style.display = "";
+    stopButton.style.display = "none";
+  }
+
   startButton.addEventListener("click", startTimer);
   stopButton.addEventListener("click", stopTimer);
+  resetButton.addEventListener("click", resetTimer);
   stopButton.style.display = "none";
   countdownElement.textContent = countdownDefaultText;
+
+  // Mutual exclusivity: disable time-select when target time is set
+  targetTimeInput.addEventListener("input", () => {
+    if (targetTimeInput.value) {
+      timeSelect.disabled = true;
+    } else {
+      timeSelect.disabled = false;
+    }
+  });
+
+  // Clear target time when time-select changes
+  timeSelect.addEventListener("change", () => {
+    targetTimeInput.value = "";
+    timeSelect.disabled = false;
+  });
 
   themeSwitch.addEventListener("click", () => {
     const currentTheme = document.documentElement.getAttribute("data-theme");
@@ -180,14 +233,27 @@ import Layout from "@layouts/Layout.astro";
   #type-controls select {
     @apply rounded border px-2 py-1;
   }
+  #target-time-controls input {
+    @apply rounded border px-2 py-1;
+    background-color: var(--dropdown-bg);
+    color: var(--dropdown-text);
+  }
   #controls button {
     @apply rounded border px-4 py-2;
     @apply flex items-center justify-center;
   }
   #time-controls select,
   #type-controls select,
+  #target-time-controls input,
   #controls button {
     height: 32px;
+  }
+  #reset-button {
+    width: 125px;
+  }
+  #time-controls select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
   #countdown {
     @apply mt-4 font-mono text-6xl;
@@ -201,9 +267,14 @@ import Layout from "@layouts/Layout.astro";
     @apply rounded border px-4 py-2;
     width: 125px;
   }
-  button:hover, select:hover {
+  button:hover, select:hover, input[type="time"]:hover {
     border-width: 3px; /* Make border thicker on hover */
     border-color: #FFA500; /* Orange border color used on the website */
     cursor: pointer;
+  }
+  #time-controls select:disabled:hover {
+    border-width: 1px;
+    border-color: initial;
+    cursor: not-allowed;
   }
 </style>
