@@ -9,22 +9,41 @@ import Layout from "@layouts/Layout.astro";
         <div id="theme-switch-container" style="display: inline-block;">
           <button id="theme-switch" class="rounded border px-4 py-2">🌝</button>
         </div>
-        <div id="time-controls">
-          <select id="time-select">
-            <option value="300">5 minutes</option>
-            <option value="600">10 minutes</option>
-            <option value="900">15 minutes</option>
-            <option value="1200">20 minutes</option>
-          </select>
+        <div id="variant-controls">
+          <div id="segmented-control" role="group" aria-label="Timer variant">
+            <button id="variant-fixed" class="segment active" aria-pressed="true">⏱️ Fixed</button>
+            <button id="variant-target" class="segment" aria-pressed="false">🎯 Target</button>
+          </div>
         </div>
-        <div id="type-controls">
-          <select id="type-select">
-            <option value="break">☕️ Break</option>
-            <option value="lab">🧑‍🔬 Lab</option>
-          </select>
-        </div>
-        <div id="target-time-controls">
-          <input type="time" id="target-time" placeholder="Target time" />
+        <div id="settings-container">
+          <button id="settings-button" aria-label="Show timer settings" aria-expanded="false">?</button>
+          <div id="settings-popover" role="dialog" aria-label="Timer settings" hidden>
+            <div id="fixed-settings">
+              <div id="time-controls">
+                <label for="time-select">Duration</label>
+                <select id="time-select">
+                  <option value="300">5 minutes</option>
+                  <option value="600">10 minutes</option>
+                  <option value="900">15 minutes</option>
+                  <option value="1200">20 minutes</option>
+                </select>
+              </div>
+            </div>
+            <div id="target-settings" hidden>
+              <div id="target-time-controls">
+                <label for="target-time">Target time</label>
+                <input type="time" id="target-time" />
+              </div>
+            </div>
+            <div id="type-controls">
+              <label for="type-select">Type</label>
+              <select id="type-select">
+                <option value="break">☕️ Break</option>
+                <option value="lab">🧑‍🔬 Lab</option>
+                <option value="session">🎓 Session</option>
+              </select>
+            </div>
+          </div>
         </div>
         <button id="start-button">▶️ Start</button>
         <button id="stop-button">⏹️ Stop </button>
@@ -48,6 +67,12 @@ import Layout from "@layouts/Layout.astro";
   const resetButton = document.getElementById("reset-button")!;
   const themeSwitch = document.getElementById("theme-switch")!;
   const targetTimeInput = document.getElementById("target-time")! as HTMLInputElement;
+  const variantFixed = document.getElementById("variant-fixed")!;
+  const variantTarget = document.getElementById("variant-target")!;
+  const settingsButton = document.getElementById("settings-button")!;
+  const settingsPopover = document.getElementById("settings-popover")!;
+  const fixedSettings = document.getElementById("fixed-settings")!;
+  const targetSettings = document.getElementById("target-settings")!;
 
   const countdownDefaultText = "⏲️ time for...";
   const countdownStopText = "⏹️ Timer stopped";
@@ -55,13 +80,16 @@ import Layout from "@layouts/Layout.astro";
   const targetTimeErrorText = "⚠️ Target time must be in the future";
 
   let timerInterval: string | number | NodeJS.Timeout | undefined;
+  let currentVariant: "fixed" | "target" = "fixed";
+
+  let initialTimeLeft: number = 0;
 
   function updateTimer(timeLeft: number) {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
     const selectedType = (document.getElementById("type-select") as HTMLSelectElement).value;
-    const emoji = selectedType === "break" ? "☕️" : "🧑‍🔬";
-    const totalTime = parseInt(timeSelect.value, 10);
+    const emoji = selectedType === "break" ? "☕️" : selectedType === "lab" ? "🧑‍🔬" : "🎓";
+    const totalTime = initialTimeLeft > 0 ? initialTimeLeft : parseInt(timeSelect.value, 10);
     const progressPercentage = (timeLeft / totalTime) * 100;
 
     const segments = Array.from({ length: totalTime / 15 }, (_, i) => {
@@ -83,8 +111,19 @@ import Layout from "@layouts/Layout.astro";
     clearInterval(timerInterval);
     let timeLeft: number;
 
-    // Check if target time is set
-    if (targetTimeInput.value) {
+    // Close popover when starting
+    closePopover();
+
+    // Check which variant is selected
+    if (currentVariant === "target") {
+      if (!targetTimeInput.value) {
+        countdownElement.textContent = "⚠️ Please set a target time";
+        setTimeout(() => {
+          countdownElement.textContent = countdownDefaultText;
+        }, 2000);
+        return;
+      }
+
       const now = new Date();
       const [hours, minutes] = targetTimeInput.value.split(":").map(Number);
       const targetDate = new Date();
@@ -104,6 +143,7 @@ import Layout from "@layouts/Layout.astro";
       timeLeft = parseInt(timeSelect.value, 10);
     }
 
+    initialTimeLeft = timeLeft;
     updateTimer(timeLeft);
 
     startButton.style.display = "none";
@@ -137,32 +177,88 @@ import Layout from "@layouts/Layout.astro";
     clearInterval(timerInterval);
     targetTimeInput.value = "";
     timeSelect.value = "300";
-    timeSelect.disabled = false;
+    currentVariant = "fixed";
+    updateVariantUI();
+    closePopover();
     countdownElement.textContent = countdownDefaultText;
     startButton.style.display = "";
     stopButton.style.display = "none";
+    initialTimeLeft = 0;
   }
 
+  function openPopover() {
+    settingsPopover.hidden = false;
+    settingsButton.setAttribute("aria-expanded", "true");
+  }
+
+  function closePopover() {
+    settingsPopover.hidden = true;
+    settingsButton.setAttribute("aria-expanded", "false");
+  }
+
+  function togglePopover() {
+    if (settingsPopover.hidden) {
+      openPopover();
+    } else {
+      closePopover();
+    }
+  }
+
+  function updateVariantUI() {
+    if (currentVariant === "fixed") {
+      variantFixed.classList.add("active");
+      variantFixed.setAttribute("aria-pressed", "true");
+      variantTarget.classList.remove("active");
+      variantTarget.setAttribute("aria-pressed", "false");
+      fixedSettings.hidden = false;
+      targetSettings.hidden = true;
+    } else {
+      variantTarget.classList.add("active");
+      variantTarget.setAttribute("aria-pressed", "true");
+      variantFixed.classList.remove("active");
+      variantFixed.setAttribute("aria-pressed", "false");
+      fixedSettings.hidden = true;
+      targetSettings.hidden = false;
+    }
+  }
+
+  // Event listeners
   startButton.addEventListener("click", startTimer);
   stopButton.addEventListener("click", stopTimer);
   resetButton.addEventListener("click", resetTimer);
-  stopButton.style.display = "none";
-  countdownElement.textContent = countdownDefaultText;
+  settingsButton.addEventListener("click", togglePopover);
 
-  // Mutual exclusivity: disable time-select when target time is set
-  targetTimeInput.addEventListener("input", () => {
-    if (targetTimeInput.value) {
-      timeSelect.disabled = true;
-    } else {
-      timeSelect.disabled = false;
+  variantFixed.addEventListener("click", () => {
+    currentVariant = "fixed";
+    updateVariantUI();
+  });
+
+  variantTarget.addEventListener("click", () => {
+    currentVariant = "target";
+    updateVariantUI();
+  });
+
+  // Close popover when clicking outside
+  document.addEventListener("click", (e) => {
+    const target = e.target as Node;
+    const settingsContainer = document.getElementById("settings-container")!;
+    if (!settingsContainer.contains(target)) {
+      closePopover();
     }
   });
 
-  // Clear target time when time-select changes
-  timeSelect.addEventListener("change", () => {
-    targetTimeInput.value = "";
-    timeSelect.disabled = false;
+  // Keyboard accessibility: close popover on Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !settingsPopover.hidden) {
+      closePopover();
+      settingsButton.focus();
+    }
   });
+
+  // Initial state
+  stopButton.style.display = "none";
+  countdownElement.textContent = countdownDefaultText;
+  updateVariantUI();
 
   themeSwitch.addEventListener("click", () => {
     const currentTheme = document.documentElement.getAttribute("data-theme");
@@ -221,12 +317,89 @@ import Layout from "@layouts/Layout.astro";
   #controls {
     @apply mt-4 flex items-center justify-center gap-4;
   }
+
+  /* Segmented control styles */
+  #variant-controls {
+    display: inline-block;
+  }
+  #segmented-control {
+    display: flex;
+    @apply rounded border;
+    overflow: hidden;
+  }
+  #segmented-control .segment {
+    @apply px-3 py-1;
+    border: none;
+    border-radius: 0;
+    background-color: var(--dropdown-bg);
+    color: var(--dropdown-text);
+    cursor: pointer;
+    height: 32px;
+  }
+  #segmented-control .segment:not(:last-child) {
+    border-right: 1px solid var(--dropdown-text);
+  }
+  #segmented-control .segment.active {
+    background-color: #FFA500;
+    color: #000000;
+  }
+  #segmented-control .segment:hover:not(.active) {
+    background-color: rgba(255, 165, 0, 0.3);
+  }
+
+  /* Settings container and popover */
+  #settings-container {
+    position: relative;
+    display: inline-block;
+  }
+  #settings-button {
+    @apply rounded-full border px-3 py-1;
+    background-color: var(--dropdown-bg);
+    color: var(--dropdown-text);
+    font-weight: bold;
+    height: 32px;
+    width: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #settings-popover {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 8px;
+    @apply rounded border p-4;
+    background-color: var(--dropdown-bg);
+    color: var(--dropdown-text);
+    z-index: 100;
+    min-width: 180px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  #settings-popover label {
+    display: block;
+    @apply mb-1 text-sm;
+  }
+  #settings-popover select,
+  #settings-popover input {
+    width: 100%;
+    @apply rounded border px-2 py-1 mb-3;
+    background-color: var(--dropdown-bg);
+    color: var(--dropdown-text);
+  }
+  #settings-popover > div:last-child select,
+  #settings-popover > div:last-child input {
+    margin-bottom: 0;
+  }
+
   #time-controls,
-  #te-controls {
+  #type-controls,
+  #target-time-controls {
     @apply flex flex-col items-start;
   }
   #time-controls label,
-  #type-controls label {
+  #type-controls label,
+  #target-time-controls label {
     @apply mb-1;
   }
   #time-controls select,
@@ -238,22 +411,18 @@ import Layout from "@layouts/Layout.astro";
     background-color: var(--dropdown-bg);
     color: var(--dropdown-text);
   }
-  #controls button {
+  #controls > button {
     @apply rounded border px-4 py-2;
     @apply flex items-center justify-center;
   }
   #time-controls select,
   #type-controls select,
   #target-time-controls input,
-  #controls button {
+  #controls > button {
     height: 32px;
   }
   #reset-button {
     width: 125px;
-  }
-  #time-controls select:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
   }
   #countdown {
     @apply mt-4 font-mono text-6xl;
