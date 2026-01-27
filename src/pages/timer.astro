@@ -249,10 +249,9 @@ import Layout from "@layouts/Layout.astro";
   // Close popover when clicking outside
   document.addEventListener("click", (e) => {
     const target = e.target as Element;
-    const fixedSettingsContainer = document.getElementById("fixed-settings")!;
-    
+
     // Check if click is outside the fixed settings container
-    if (!fixedSettingsContainer.contains(target) && !customTimePopover.hidden) {
+    if (!fixedSettings.contains(target) && !customTimePopover.hidden) {
       closeCustomTimePopover();
     }
   });
