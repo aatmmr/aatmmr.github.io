@@ -1,8 +1,8 @@
 # aatmmr.dev
 
-Welcome to the source of my blog [aatmmr.dev](https://aatmmr.dev). 
+Welcome to the source of my blog [aatmmr.dev](https://aatmmr.dev).
 
-The blog filled with handy tips and tricks and tutorials to solve one or another 
+The blog filled with handy tips and tricks and tutorials to solve one or another
 challenge in the daily live of a DevOps consultant, Octowizard and someone who likes to tinker with.
 I hope you find one or another valueable hint or information that helps you understand what you are looking for.
 
