@@ -278,11 +278,12 @@ import Layout from "@layouts/Layout.astro";
   countdownElement.textContent = countdownDefaultText;
   updateVariantUI();
   
-  // Set target time to current hour
+  // Set target time to 5 minutes in the future for smoother UX
   const now = new Date();
-  const currentHour = now.getHours().toString().padStart(2, '0');
-  const currentMinute = now.getMinutes().toString().padStart(2, '0');
-  targetTimeInput.value = `${currentHour}:${currentMinute}`;
+  now.setMinutes(now.getMinutes() + 5);
+  const targetHour = now.getHours().toString().padStart(2, '0');
+  const targetMinute = now.getMinutes().toString().padStart(2, '0');
+  targetTimeInput.value = `${targetHour}:${targetMinute}`;
 
   themeSwitch.addEventListener("click", () => {
     const currentTheme = document.documentElement.getAttribute("data-theme");
