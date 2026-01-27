@@ -9,22 +9,39 @@ import Layout from "@layouts/Layout.astro";
         <div id="theme-switch-container" style="display: inline-block;">
           <button id="theme-switch" class="rounded border px-4 py-2">🌝</button>
         </div>
-        <div id="time-controls">
-          <select id="time-select">
-            <option value="300">5 minutes</option>
-            <option value="600">10 minutes</option>
-            <option value="900">15 minutes</option>
-            <option value="1200">20 minutes</option>
-          </select>
+        <div id="variant-controls">
+          <div id="segmented-control" role="group" aria-label="Timer variant">
+            <button id="variant-fixed" class="segment active" aria-pressed="true">⏱️ Fixed</button>
+            <button id="variant-target" class="segment" aria-pressed="false">🎯 Target</button>
+          </div>
         </div>
-        <div id="type-controls">
+        <div id="inline-settings">
+          <div id="fixed-settings">
+            <select id="time-select">
+              <option value="300">5 min</option>
+              <option value="600">10 min</option>
+              <option value="900">15 min</option>
+              <option value="1200">20 min</option>
+              <option value="custom">Custom</option>
+            </select>
+            <div id="custom-time-popover" role="dialog" aria-label="Custom time" hidden>
+              <label for="custom-minutes">Minutes:</label>
+              <input type="number" id="custom-minutes" placeholder="Minutes" min="1" max="999" />
+              <button id="custom-time-ok">OK</button>
+            </div>
+          </div>
+          <div id="target-settings" hidden>
+            <input type="time" id="target-time" />
+          </div>
           <select id="type-select">
             <option value="break">☕️ Break</option>
             <option value="lab">🧑‍🔬 Lab</option>
+            <option value="session">🎓 Session</option>
           </select>
         </div>
         <button id="start-button">▶️ Start</button>
         <button id="stop-button">⏹️ Stop </button>
+        <button id="reset-button">🔄 Reset</button>
       </div>
       <div
         id="countdown"
@@ -39,21 +56,35 @@ import Layout from "@layouts/Layout.astro";
 <script>
   const countdownElement = document.getElementById("countdown")!;
   const timeSelect = document.getElementById("time-select")! as HTMLSelectElement;
+  const customMinutesInput = document.getElementById("custom-minutes")! as HTMLInputElement;
+  const customTimePopover = document.getElementById("custom-time-popover")!;
+  const customTimeOkButton = document.getElementById("custom-time-ok")!;
   const startButton = document.getElementById("start-button")!;
   const stopButton = document.getElementById("stop-button")!;
+  const resetButton = document.getElementById("reset-button")!;
   const themeSwitch = document.getElementById("theme-switch")!;
+  const targetTimeInput = document.getElementById("target-time")! as HTMLInputElement;
+  const variantFixed = document.getElementById("variant-fixed")!;
+  const variantTarget = document.getElementById("variant-target")!;
+  const fixedSettings = document.getElementById("fixed-settings")!;
+  const targetSettings = document.getElementById("target-settings")!;
 
-  const countdownDefaultText = "⏲️ time for...";
+  const countdownDefaultText = "⏱️ time for...";
   const countdownStopText = "⏹️ Timer stopped";
+  const sessionStartingText = "Session starting soon...";
+  const targetTimeErrorText = "⚠️ Target time must be in the future";
 
   let timerInterval: string | number | NodeJS.Timeout | undefined;
+  let currentVariant: "fixed" | "target" = "fixed";
+
+  let initialTimeLeft: number = 0;
 
   function updateTimer(timeLeft: number) {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
     const selectedType = (document.getElementById("type-select") as HTMLSelectElement).value;
-    const emoji = selectedType === "break" ? "☕️" : "🧑‍🔬";
-    const totalTime = parseInt(timeSelect.value, 10);
+    const emoji = selectedType === "break" ? "☕️" : selectedType === "lab" ? "🧑‍🔬" : "🎓";
+    const totalTime = initialTimeLeft > 0 ? initialTimeLeft : parseInt(timeSelect.value, 10);
     const progressPercentage = (timeLeft / totalTime) * 100;
 
     const segments = Array.from({ length: totalTime / 15 }, (_, i) => {
@@ -73,7 +104,50 @@ import Layout from "@layouts/Layout.astro";
 
   function startTimer() {
     clearInterval(timerInterval);
-    let timeLeft = parseInt(timeSelect.value, 10);
+    let timeLeft: number;
+
+    // Check which variant is selected
+    if (currentVariant === "target") {
+      if (!targetTimeInput.value) {
+        countdownElement.textContent = "⚠️ Please set a target time";
+        setTimeout(() => {
+          countdownElement.textContent = countdownDefaultText;
+        }, 2000);
+        return;
+      }
+
+      const now = new Date();
+      const [hours, minutes] = targetTimeInput.value.split(":").map(Number);
+      const targetDate = new Date();
+      targetDate.setHours(hours, minutes, 0, 0);
+
+      // Validate target time is in the future
+      if (targetDate <= now) {
+        countdownElement.textContent = targetTimeErrorText;
+        setTimeout(() => {
+          countdownElement.textContent = countdownDefaultText;
+        }, 2000);
+        return;
+      }
+
+      timeLeft = Math.floor((targetDate.getTime() - now.getTime()) / 1000);
+    } else {
+      if (timeSelect.value === "custom") {
+        const customMinutes = parseInt(customMinutesInput.value, 10);
+        if (!customMinutes || customMinutes <= 0) {
+          countdownElement.textContent = "⚠️ Please enter valid minutes";
+          setTimeout(() => {
+            countdownElement.textContent = countdownDefaultText;
+          }, 2000);
+          return;
+        }
+        timeLeft = customMinutes * 60;
+      } else {
+        timeLeft = parseInt(timeSelect.value, 10);
+      }
+    }
+
+    initialTimeLeft = timeLeft;
     updateTimer(timeLeft);
 
     startButton.style.display = "none";
@@ -85,10 +159,7 @@ import Layout from "@layouts/Layout.astro";
         updateTimer(timeLeft);
       } else {
         clearInterval(timerInterval);
-        countdownElement.textContent = "0:00";
-        setTimeout(() => {
-          countdownElement.textContent = countdownDefaultText;
-        }, 1000);
+        countdownElement.textContent = sessionStartingText;
         startButton.style.display = "";
         stopButton.style.display = "none";
       }
@@ -106,10 +177,111 @@ import Layout from "@layouts/Layout.astro";
     stopButton.style.display = "none";
   }
 
+  function resetTimer() {
+    clearInterval(timerInterval);
+    targetTimeInput.value = "";
+    timeSelect.value = "300";
+    customMinutesInput.value = "";
+    closeCustomTimePopover();
+    currentVariant = "fixed";
+    updateVariantUI();
+    countdownElement.textContent = countdownDefaultText;
+    startButton.style.display = "";
+    stopButton.style.display = "none";
+    initialTimeLeft = 0;
+  }
+
+  function updateVariantUI() {
+    if (currentVariant === "fixed") {
+      variantFixed.classList.add("active");
+      variantFixed.setAttribute("aria-pressed", "true");
+      variantTarget.classList.remove("active");
+      variantTarget.setAttribute("aria-pressed", "false");
+      fixedSettings.hidden = false;
+      targetSettings.hidden = true;
+    } else {
+      variantTarget.classList.add("active");
+      variantTarget.setAttribute("aria-pressed", "true");
+      variantFixed.classList.remove("active");
+      variantFixed.setAttribute("aria-pressed", "false");
+      fixedSettings.hidden = true;
+      targetSettings.hidden = false;
+    }
+  }
+
+  function openCustomTimePopover() {
+    customTimePopover.hidden = false;
+    customMinutesInput.focus();
+  }
+
+  function closeCustomTimePopover() {
+    customTimePopover.hidden = true;
+  }
+
+  // Event listeners
   startButton.addEventListener("click", startTimer);
   stopButton.addEventListener("click", stopTimer);
+  resetButton.addEventListener("click", resetTimer);
+
+  variantFixed.addEventListener("click", () => {
+    currentVariant = "fixed";
+    closeCustomTimePopover(); // Close popover when switching variants
+    updateVariantUI();
+  });
+
+  variantTarget.addEventListener("click", () => {
+    currentVariant = "target";
+    closeCustomTimePopover(); // Close popover when switching variants
+    updateVariantUI();
+  });
+
+  timeSelect.addEventListener("change", () => {
+    closeCustomTimePopover(); // Always close first
+    if (timeSelect.value === "custom") {
+      openCustomTimePopover();
+    }
+  });
+
+  customTimeOkButton.addEventListener("click", () => {
+    closeCustomTimePopover();
+  });
+
+  // Close popover when clicking outside
+  document.addEventListener("click", (e) => {
+    const target = e.target as Element;
+
+    // Check if click is outside the fixed settings container
+    if (!fixedSettings.contains(target) && !customTimePopover.hidden) {
+      closeCustomTimePopover();
+    }
+  });
+
+  // Handle Enter and Escape keys in custom minutes input
+  customMinutesInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === "Escape") {
+      closeCustomTimePopover();
+    }
+  });
+
+  // Handle Escape key globally when popover is open
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !customTimePopover.hidden) {
+      closeCustomTimePopover();
+    }
+  });
+
+
+
+  // Initial state
   stopButton.style.display = "none";
   countdownElement.textContent = countdownDefaultText;
+  updateVariantUI();
+  
+  // Set target time to current hour
+  const now = new Date();
+  const currentHour = now.getHours().toString().padStart(2, '0');
+  const currentMinute = now.getMinutes().toString().padStart(2, '0');
+  targetTimeInput.value = `${currentHour}:${currentMinute}`;
 
   themeSwitch.addEventListener("click", () => {
     const currentTheme = document.documentElement.getAttribute("data-theme");
@@ -166,44 +338,131 @@ import Layout from "@layouts/Layout.astro";
     @apply text-3xl font-bold;
   }
   #controls {
-    @apply mt-4 flex items-center justify-center gap-4;
+    @apply mt-4 flex items-center justify-center gap-6;
   }
-  #time-controls,
-  #te-controls {
-    @apply flex flex-col items-start;
+
+  /* Segmented control styles */
+  #variant-controls {
+    display: inline-block;
   }
-  #time-controls label,
-  #type-controls label {
-    @apply mb-1;
-  }
-  #time-controls select,
-  #type-controls select {
-    @apply rounded border px-2 py-1;
-  }
-  #controls button {
-    @apply rounded border px-4 py-2;
-    @apply flex items-center justify-center;
-  }
-  #time-controls select,
-  #type-controls select,
-  #controls button {
+  #segmented-control {
+    display: flex;
+    @apply rounded border;
+    overflow: hidden;
     height: 32px;
   }
+  #segmented-control .segment {
+    @apply px-6 py-1;
+    border: none;
+    border-radius: 0;
+    background-color: var(--dropdown-bg);
+    color: var(--dropdown-text);
+    cursor: pointer;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 140px;
+  }
+  #segmented-control .segment:not(:last-child) {
+    border-right: 1px solid var(--dropdown-text);
+  }
+  #segmented-control .segment.active {
+    background-color: #FFA500;
+    color: #000000;
+  }
+  #segmented-control .segment:hover:not(.active) {
+    background-color: rgba(255, 165, 0, 0.3);
+  }
+
+  /* Inline settings */
+  #theme-switch {
+    height: 32px;
+    background-color: var(--dropdown-bg);
+    color: var(--dropdown-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px;
+  }
+  #inline-settings {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  #inline-settings select,
+  #inline-settings input {
+    @apply rounded border px-3 py-1;
+    background-color: var(--dropdown-bg);
+    color: var(--dropdown-text);
+    height: 32px;
+    min-width: 100px;
+  }
+  
+  /* Custom time popover */
+  #fixed-settings {
+    position: relative;
+  }
+  #custom-time-popover {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 8px;
+    @apply rounded border p-3;
+    background-color: var(--dropdown-bg);
+    color: var(--dropdown-text);
+    z-index: 100;
+    min-width: 160px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    flex-direction: column;
+    gap: 8px;
+  }
+  #custom-time-popover:not([hidden]) {
+    display: flex;
+  }
+  #custom-time-popover label {
+    font-size: 0.875rem;
+    margin-bottom: 4px;
+  }
+  #custom-time-popover input {
+    width: 100%;
+    @apply rounded border px-2 py-1;
+    background-color: var(--dropdown-bg);
+    color: var(--dropdown-text);
+    height: 32px;
+  }
+  #custom-time-popover button {
+    @apply rounded border px-3 py-1;
+    background-color: #FFA500;
+    color: #000000;
+    height: 28px;
+    align-self: flex-end;
+    min-width: 50px;
+  }
+
+
+  #controls > button {
+    @apply rounded border px-6 py-2;
+    @apply flex items-center justify-center;
+    height: 32px;
+    min-width: 140px;
+  }
+
   #countdown {
     @apply mt-4 font-mono text-6xl;
-    display: block
+    display: block;
   }
-  #stop-button {
-    @apply rounded border px-4 py-2;
-    width: 125px;
-  }
-  #start-button {
-    @apply rounded border px-4 py-2;
-    width: 125px;
-  }
-  button:hover, select:hover {
+  button:hover, select:hover, input[type="time"]:hover, input[type="number"]:hover {
     border-width: 3px; /* Make border thicker on hover */
     border-color: #FFA500; /* Orange border color used on the website */
     cursor: pointer;
+  }
+  #custom-time-popover button:hover {
+    background-color: #FF8C00;
+  }
+  #time-controls select:disabled:hover {
+    border-width: 1px;
+    border-color: initial;
+    cursor: not-allowed;
   }
 </style>
