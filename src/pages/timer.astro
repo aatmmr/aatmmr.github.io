@@ -207,6 +207,12 @@ import Layout from "@layouts/Layout.astro";
   stopButton.style.display = "none";
   countdownElement.textContent = countdownDefaultText;
   updateVariantUI();
+  
+  // Set target time to current hour
+  const now = new Date();
+  const currentHour = now.getHours().toString().padStart(2, '0');
+  const currentMinute = now.getMinutes().toString().padStart(2, '0');
+  targetTimeInput.value = `${currentHour}:${currentMinute}`;
 
   themeSwitch.addEventListener("click", () => {
     const currentTheme = document.documentElement.getAttribute("data-theme");
