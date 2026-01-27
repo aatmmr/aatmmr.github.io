@@ -22,7 +22,13 @@ import Layout from "@layouts/Layout.astro";
               <option value="600">10 min</option>
               <option value="900">15 min</option>
               <option value="1200">20 min</option>
+              <option value="custom">Custom</option>
             </select>
+            <div id="custom-time-popover" role="dialog" aria-label="Custom time" hidden>
+              <label for="custom-minutes">Minutes:</label>
+              <input type="number" id="custom-minutes" placeholder="Minutes" min="1" max="999" />
+              <button id="custom-time-ok">OK</button>
+            </div>
           </div>
           <div id="target-settings" hidden>
             <input type="time" id="target-time" />
@@ -50,6 +56,9 @@ import Layout from "@layouts/Layout.astro";
 <script>
   const countdownElement = document.getElementById("countdown")!;
   const timeSelect = document.getElementById("time-select")! as HTMLSelectElement;
+  const customMinutesInput = document.getElementById("custom-minutes")! as HTMLInputElement;
+  const customTimePopover = document.getElementById("custom-time-popover")!;
+  const customTimeOkButton = document.getElementById("custom-time-ok")!;
   const startButton = document.getElementById("start-button")!;
   const stopButton = document.getElementById("stop-button")!;
   const resetButton = document.getElementById("reset-button")!;
@@ -123,7 +132,19 @@ import Layout from "@layouts/Layout.astro";
 
       timeLeft = Math.floor((targetDate.getTime() - now.getTime()) / 1000);
     } else {
-      timeLeft = parseInt(timeSelect.value, 10);
+      if (timeSelect.value === "custom") {
+        const customMinutes = parseInt(customMinutesInput.value, 10);
+        if (!customMinutes || customMinutes <= 0) {
+          countdownElement.textContent = "⚠️ Please enter valid minutes";
+          setTimeout(() => {
+            countdownElement.textContent = countdownDefaultText;
+          }, 2000);
+          return;
+        }
+        timeLeft = customMinutes * 60;
+      } else {
+        timeLeft = parseInt(timeSelect.value, 10);
+      }
     }
 
     initialTimeLeft = timeLeft;
@@ -160,6 +181,8 @@ import Layout from "@layouts/Layout.astro";
     clearInterval(timerInterval);
     targetTimeInput.value = "";
     timeSelect.value = "300";
+    customMinutesInput.value = "";
+    closeCustomTimePopover();
     currentVariant = "fixed";
     updateVariantUI();
     countdownElement.textContent = countdownDefaultText;
@@ -186,6 +209,15 @@ import Layout from "@layouts/Layout.astro";
     }
   }
 
+  function openCustomTimePopover() {
+    customTimePopover.hidden = false;
+    customMinutesInput.focus();
+  }
+
+  function closeCustomTimePopover() {
+    customTimePopover.hidden = true;
+  }
+
   // Event listeners
   startButton.addEventListener("click", startTimer);
   stopButton.addEventListener("click", stopTimer);
@@ -193,12 +225,50 @@ import Layout from "@layouts/Layout.astro";
 
   variantFixed.addEventListener("click", () => {
     currentVariant = "fixed";
+    closeCustomTimePopover(); // Close popover when switching variants
     updateVariantUI();
   });
 
   variantTarget.addEventListener("click", () => {
     currentVariant = "target";
+    closeCustomTimePopover(); // Close popover when switching variants
     updateVariantUI();
+  });
+
+  timeSelect.addEventListener("change", () => {
+    closeCustomTimePopover(); // Always close first
+    if (timeSelect.value === "custom") {
+      openCustomTimePopover();
+    }
+  });
+
+  customTimeOkButton.addEventListener("click", () => {
+    closeCustomTimePopover();
+  });
+
+  // Close popover when clicking outside
+  document.addEventListener("click", (e) => {
+    const target = e.target as Element;
+    const fixedSettingsContainer = document.getElementById("fixed-settings")!;
+    
+    // Check if click is outside the fixed settings container
+    if (!fixedSettingsContainer.contains(target) && !customTimePopover.hidden) {
+      closeCustomTimePopover();
+    }
+  });
+
+  // Handle Enter and Escape keys in custom minutes input
+  customMinutesInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === "Escape") {
+      closeCustomTimePopover();
+    }
+  });
+
+  // Handle Escape key globally when popover is open
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !customTimePopover.hidden) {
+      closeCustomTimePopover();
+    }
   });
 
 
@@ -328,6 +398,47 @@ import Layout from "@layouts/Layout.astro";
     height: 32px;
     min-width: 100px;
   }
+  
+  /* Custom time popover */
+  #fixed-settings {
+    position: relative;
+  }
+  #custom-time-popover {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 8px;
+    @apply rounded border p-3;
+    background-color: var(--dropdown-bg);
+    color: var(--dropdown-text);
+    z-index: 100;
+    min-width: 160px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    flex-direction: column;
+    gap: 8px;
+  }
+  #custom-time-popover:not([hidden]) {
+    display: flex;
+  }
+  #custom-time-popover label {
+    font-size: 0.875rem;
+    margin-bottom: 4px;
+  }
+  #custom-time-popover input {
+    width: 100%;
+    @apply rounded border px-2 py-1;
+    background-color: var(--dropdown-bg);
+    color: var(--dropdown-text);
+    height: 32px;
+  }
+  #custom-time-popover button {
+    @apply rounded border px-3 py-1;
+    background-color: #FFA500;
+    color: #000000;
+    height: 28px;
+    align-self: flex-end;
+    min-width: 50px;
+  }
 
 
   #controls > button {
@@ -341,10 +452,13 @@ import Layout from "@layouts/Layout.astro";
     @apply mt-4 font-mono text-6xl;
     display: block;
   }
-  button:hover, select:hover, input[type="time"]:hover {
+  button:hover, select:hover, input[type="time"]:hover, input[type="number"]:hover {
     border-width: 3px; /* Make border thicker on hover */
     border-color: #FFA500; /* Orange border color used on the website */
     cursor: pointer;
+  }
+  #custom-time-popover button:hover {
+    background-color: #FF8C00;
   }
   #time-controls select:disabled:hover {
     border-width: 1px;
