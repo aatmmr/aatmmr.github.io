@@ -15,35 +15,23 @@ import Layout from "@layouts/Layout.astro";
             <button id="variant-target" class="segment" aria-pressed="false">🎯 Target</button>
           </div>
         </div>
-        <div id="settings-container">
-          <button id="settings-button" aria-label="Show timer settings" aria-expanded="false">?</button>
-          <div id="settings-popover" role="dialog" aria-label="Timer settings" hidden>
-            <div id="fixed-settings">
-              <div id="time-controls">
-                <label for="time-select">Duration</label>
-                <select id="time-select">
-                  <option value="300">5 minutes</option>
-                  <option value="600">10 minutes</option>
-                  <option value="900">15 minutes</option>
-                  <option value="1200">20 minutes</option>
-                </select>
-              </div>
-            </div>
-            <div id="target-settings" hidden>
-              <div id="target-time-controls">
-                <label for="target-time">Target time</label>
-                <input type="time" id="target-time" />
-              </div>
-            </div>
-            <div id="type-controls">
-              <label for="type-select">Type</label>
-              <select id="type-select">
-                <option value="break">☕️ Break</option>
-                <option value="lab">🧑‍🔬 Lab</option>
-                <option value="session">🎓 Session</option>
-              </select>
-            </div>
+        <div id="inline-settings">
+          <div id="fixed-settings">
+            <select id="time-select">
+              <option value="300">5 min</option>
+              <option value="600">10 min</option>
+              <option value="900">15 min</option>
+              <option value="1200">20 min</option>
+            </select>
           </div>
+          <div id="target-settings" hidden>
+            <input type="time" id="target-time" />
+          </div>
+          <select id="type-select">
+            <option value="break">☕️ Break</option>
+            <option value="lab">🧑‍🔬 Lab</option>
+            <option value="session">🎓 Session</option>
+          </select>
         </div>
         <button id="start-button">▶️ Start</button>
         <button id="stop-button">⏹️ Stop </button>
@@ -69,12 +57,10 @@ import Layout from "@layouts/Layout.astro";
   const targetTimeInput = document.getElementById("target-time")! as HTMLInputElement;
   const variantFixed = document.getElementById("variant-fixed")!;
   const variantTarget = document.getElementById("variant-target")!;
-  const settingsButton = document.getElementById("settings-button")!;
-  const settingsPopover = document.getElementById("settings-popover")!;
   const fixedSettings = document.getElementById("fixed-settings")!;
   const targetSettings = document.getElementById("target-settings")!;
 
-  const countdownDefaultText = "⏲️ time for...";
+  const countdownDefaultText = "⏱️ time for...";
   const countdownStopText = "⏹️ Timer stopped";
   const sessionStartingText = "Session starting soon...";
   const targetTimeErrorText = "⚠️ Target time must be in the future";
@@ -110,9 +96,6 @@ import Layout from "@layouts/Layout.astro";
   function startTimer() {
     clearInterval(timerInterval);
     let timeLeft: number;
-
-    // Close popover when starting
-    closePopover();
 
     // Check which variant is selected
     if (currentVariant === "target") {
@@ -179,29 +162,10 @@ import Layout from "@layouts/Layout.astro";
     timeSelect.value = "300";
     currentVariant = "fixed";
     updateVariantUI();
-    closePopover();
     countdownElement.textContent = countdownDefaultText;
     startButton.style.display = "";
     stopButton.style.display = "none";
     initialTimeLeft = 0;
-  }
-
-  function openPopover() {
-    settingsPopover.hidden = false;
-    settingsButton.setAttribute("aria-expanded", "true");
-  }
-
-  function closePopover() {
-    settingsPopover.hidden = true;
-    settingsButton.setAttribute("aria-expanded", "false");
-  }
-
-  function togglePopover() {
-    if (settingsPopover.hidden) {
-      openPopover();
-    } else {
-      closePopover();
-    }
   }
 
   function updateVariantUI() {
@@ -226,7 +190,6 @@ import Layout from "@layouts/Layout.astro";
   startButton.addEventListener("click", startTimer);
   stopButton.addEventListener("click", stopTimer);
   resetButton.addEventListener("click", resetTimer);
-  settingsButton.addEventListener("click", togglePopover);
 
   variantFixed.addEventListener("click", () => {
     currentVariant = "fixed";
@@ -238,22 +201,7 @@ import Layout from "@layouts/Layout.astro";
     updateVariantUI();
   });
 
-  // Close popover when clicking outside
-  document.addEventListener("click", (e) => {
-    const target = e.target as Node;
-    const settingsContainer = document.getElementById("settings-container")!;
-    if (!settingsContainer.contains(target)) {
-      closePopover();
-    }
-  });
 
-  // Keyboard accessibility: close popover on Escape
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !settingsPopover.hidden) {
-      closePopover();
-      settingsButton.focus();
-    }
-  });
 
   // Initial state
   stopButton.style.display = "none";
@@ -315,7 +263,7 @@ import Layout from "@layouts/Layout.astro";
     @apply text-3xl font-bold;
   }
   #controls {
-    @apply mt-4 flex items-center justify-center gap-4;
+    @apply mt-4 flex items-center justify-center gap-6;
   }
 
   /* Segmented control styles */
@@ -328,13 +276,17 @@ import Layout from "@layouts/Layout.astro";
     overflow: hidden;
   }
   #segmented-control .segment {
-    @apply px-3 py-1;
+    @apply px-6 py-1;
     border: none;
     border-radius: 0;
     background-color: var(--dropdown-bg);
     color: var(--dropdown-text);
     cursor: pointer;
     height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 140px;
   }
   #segmented-control .segment:not(:last-child) {
     border-right: 1px solid var(--dropdown-text);
@@ -347,94 +299,41 @@ import Layout from "@layouts/Layout.astro";
     background-color: rgba(255, 165, 0, 0.3);
   }
 
-  /* Settings container and popover */
-  #settings-container {
-    position: relative;
-    display: inline-block;
-  }
-  #settings-button {
-    @apply rounded border px-3 py-1;
+  /* Inline settings */
+  #theme-switch {
+    height: 32px;
     background-color: var(--dropdown-bg);
     color: var(--dropdown-text);
-    font-weight: bold;
-    height: 32px;
-    width: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
+    min-width: 60px;
   }
-  #settings-popover {
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-top: 8px;
-    @apply rounded border p-4;
+  #inline-settings {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  #inline-settings select,
+  #inline-settings input {
+    @apply rounded border px-3 py-1;
     background-color: var(--dropdown-bg);
     color: var(--dropdown-text);
-    z-index: 100;
-    min-width: 180px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-  #settings-popover label {
-    display: block;
-    @apply mb-1 text-sm;
-  }
-  #settings-popover select,
-  #settings-popover input {
-    width: 100%;
-    @apply rounded border px-2 py-1 mb-3;
-    background-color: var(--dropdown-bg);
-    color: var(--dropdown-text);
-  }
-  #settings-popover > div:last-child select,
-  #settings-popover > div:last-child input {
-    margin-bottom: 0;
+    height: 32px;
+    min-width: 100px;
   }
 
-  #time-controls,
-  #type-controls,
-  #target-time-controls {
-    @apply flex flex-col items-start;
-  }
-  #time-controls label,
-  #type-controls label,
-  #target-time-controls label {
-    @apply mb-1;
-  }
-  #time-controls select,
-  #type-controls select {
-    @apply rounded border px-2 py-1;
-  }
-  #target-time-controls input {
-    @apply rounded border px-2 py-1;
-    background-color: var(--dropdown-bg);
-    color: var(--dropdown-text);
-  }
+
   #controls > button {
-    @apply rounded border px-4 py-2;
+    @apply rounded border px-6 py-2;
     @apply flex items-center justify-center;
-  }
-  #time-controls select,
-  #type-controls select,
-  #target-time-controls input,
-  #controls > button {
     height: 32px;
+    min-width: 140px;
   }
-  #reset-button {
-    width: 125px;
-  }
+
   #countdown {
     @apply mt-4 font-mono text-6xl;
-    display: block
-  }
-  #stop-button {
-    @apply rounded border px-4 py-2;
-    width: 125px;
-  }
-  #start-button {
-    @apply rounded border px-4 py-2;
-    width: 125px;
+    display: block;
   }
   button:hover, select:hover, input[type="time"]:hover {
     border-width: 3px; /* Make border thicker on hover */
