@@ -33,12 +33,41 @@ import Layout from "@layouts/Layout.astro";
           <div id="target-settings" hidden>
             <input type="time" id="target-time" />
           </div>
-          <select id="type-select">
-            <option value="break">☕️ Break</option>
-            <option value="lab">🧑‍🔬 Lab</option>
-            <option value="session">🎓 Session</option>
-          </select>
-          <input type="text" id="timer-title-input" placeholder="Title" value="Break" />
+          <div id="type-settings">
+            <select id="type-select">
+              <option value="break">☕️ Break</option>
+              <option value="lab">🧑‍🔬 Lab</option>
+              <option value="session">🎓 Session</option>
+              <option value="custom">✏️ Custom</option>
+            </select>
+            <div id="custom-title-popover" role="dialog" aria-label="Custom title" hidden>
+              <div class="popover-row">
+                <label for="custom-emoji-select">Emoji:</label>
+                <select id="custom-emoji-select">
+                  <option value="✏️">✏️</option>
+                  <option value="🚀">🚀</option>
+                  <option value="💡">💡</option>
+                  <option value="🎯">🎯</option>
+                  <option value="🔥">🔥</option>
+                  <option value="⭐">⭐</option>
+                  <option value="📚">📚</option>
+                  <option value="📝">📝</option>
+                  <option value="🏃">🏃</option>
+                  <option value="🧘">🧘</option>
+                  <option value="🎉">🎉</option>
+                  <option value="⏰">⏰</option>
+                  <option value="🛠️">🛠️</option>
+                  <option value="💬">💬</option>
+                  <option value="🌟">🌟</option>
+                </select>
+              </div>
+              <div class="popover-row">
+                <label for="custom-title-input">Title:</label>
+                <input type="text" id="custom-title-input" placeholder="Enter title" maxlength="50" />
+              </div>
+              <button id="custom-title-ok">OK</button>
+            </div>
+          </div>
         </div>
       </div>
       <div id="action-buttons">
@@ -68,14 +97,21 @@ import Layout from "@layouts/Layout.astro";
   const variantTarget = document.getElementById("variant-target")!;
   const fixedSettings = document.getElementById("fixed-settings")!;
   const targetSettings = document.getElementById("target-settings")!;
-  const timerTitleInput = document.getElementById("timer-title-input")! as HTMLInputElement;
+  const typeSettings = document.getElementById("type-settings")!;
+  const customTitlePopover = document.getElementById("custom-title-popover")!;
+  const customTitleInput = document.getElementById("custom-title-input")! as HTMLInputElement;
+  const customEmojiSelect = document.getElementById("custom-emoji-select")! as HTMLSelectElement;
+  const customTitleOkButton = document.getElementById("custom-title-ok")!;
   const typeSelect = document.getElementById("type-select")! as HTMLSelectElement;
 
   const titleDefaults: Record<string, string> = {
     break: "Break",
     lab: "Lab",
-    session: "Session"
+    session: "Session",
+    custom: "Custom"
   };
+  let customTitle = "";
+  let customEmoji = "✏️";
   let previousType = "break";
 
   const countdownDefaultText = "⏱️ time for...";
@@ -92,9 +128,9 @@ import Layout from "@layouts/Layout.astro";
   function updateTimer(timeLeft: number) {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
-    const selectedType = (document.getElementById("type-select") as HTMLSelectElement).value;
-    const emoji = selectedType === "break" ? "☕️" : selectedType === "lab" ? "🧑‍🔬" : "🎓";
-    const title = timerTitleInput.value || titleDefaults[selectedType] || "Timer";
+    const selectedType = typeSelect.value;
+    const emoji = selectedType === "break" ? "☕️" : selectedType === "lab" ? "🧑‍🔬" : selectedType === "session" ? "🎓" : customEmoji;
+    const title = selectedType === "custom" ? customTitle : titleDefaults[selectedType] || "Timer";
     const totalTime = initialTimeLeft > 0 ? initialTimeLeft : parseInt(timeSelect.value, 10);
     const progressPercentage = (timeLeft / totalTime) * 100;
 
@@ -213,9 +249,14 @@ import Layout from "@layouts/Layout.astro";
     startPauseButton.textContent = "▶️ Start";
     initialTimeLeft = 0;
     remainingTime = 0;
-    // Reset title to default for current type
+    // Reset type and custom title
+    resetCustomTypeOption();
     typeSelect.value = "break";
-    timerTitleInput.value = titleDefaults["break"];
+    customTitle = "";
+    customEmoji = "✏️";
+    customTitleInput.value = "";
+    customEmojiSelect.value = "✏️";
+    closeCustomTitlePopover();
     previousType = "break";
   }
 
@@ -325,17 +366,71 @@ import Layout from "@layouts/Layout.astro";
 
 
 
-  // Update title when type changes (only if title matches previous default)
-  typeSelect.addEventListener("change", () => {
-    const currentTitle = timerTitleInput.value;
-    const previousDefault = titleDefaults[previousType];
-    const newType = typeSelect.value;
-    
-    // Only update if the current title matches the previous type's default
-    if (currentTitle === previousDefault) {
-      timerTitleInput.value = titleDefaults[newType] || newType;
+  // Custom title popover functions
+  function openCustomTitlePopover() {
+    customTitlePopover.hidden = false;
+    customTitleInput.focus();
+  }
+
+  function closeCustomTitlePopover() {
+    customTitlePopover.hidden = true;
+  }
+
+  function applyCustomTitle() {
+    const newCustomTitle = customTitleInput.value.trim();
+    const newCustomEmoji = customEmojiSelect.value || "✏️";
+    if (newCustomTitle) {
+      customTitle = newCustomTitle;
+      customEmoji = newCustomEmoji;
+      const customOption = typeSelect.querySelector('option[value="custom"]') as HTMLOptionElement;
+      customOption.textContent = `${newCustomEmoji} ${newCustomTitle}`;
     }
-    previousType = newType;
+    closeCustomTitlePopover();
+  }
+
+  function resetCustomTypeOption() {
+    const customOption = typeSelect.querySelector('option[value="custom"]') as HTMLOptionElement;
+    if (customOption) {
+      customOption.textContent = '✏️ Custom';
+    }
+  }
+
+  // Type select change handler - opens popover for custom
+  typeSelect.addEventListener("change", () => {
+    closeCustomTitlePopover();
+    if (typeSelect.value === "custom") {
+      openCustomTitlePopover();
+    } else {
+      previousType = typeSelect.value;
+    }
+  });
+
+  customTitleOkButton.addEventListener("click", () => {
+    applyCustomTitle();
+  });
+
+  // Close title popover when clicking outside
+  document.addEventListener("click", (e) => {
+    const target = e.target as Element;
+    if (!typeSettings.contains(target) && !customTitlePopover.hidden) {
+      closeCustomTitlePopover();
+    }
+  });
+
+  // Handle Enter and Escape keys in custom title input
+  customTitleInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      applyCustomTitle();
+    } else if (e.key === "Escape") {
+      closeCustomTitlePopover();
+    }
+  });
+
+  // Handle Escape key globally when title popover is open
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !customTitlePopover.hidden) {
+      closeCustomTitlePopover();
+    }
   });
 
   // Initial state
@@ -598,12 +693,62 @@ import Layout from "@layouts/Layout.astro";
     font-size: 6rem;
     margin-top: 1.25rem;
   }
-  #timer-title-input {
-    @apply rounded border px-3 py-1;
+  /* Custom title popover */
+  #type-settings {
+    position: relative;
+  }
+  #custom-title-popover {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 8px;
+    @apply rounded border p-3;
+    background-color: rgb(var(--color-fill));
+    color: var(--dropdown-text);
+    z-index: 100;
+    min-width: 180px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    flex-direction: column;
+    gap: 8px;
+  }
+  #custom-title-popover:not([hidden]) {
+    display: flex;
+  }
+  #custom-title-popover .popover-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  #custom-title-popover label {
+    font-size: 0.875rem;
+    margin-bottom: 4px;
+  }
+  #custom-title-popover input {
+    width: 100%;
+    @apply rounded border px-2 py-1;
     background-color: var(--dropdown-bg);
     color: var(--dropdown-text);
     height: 32px;
-    min-width: 120px;
+  }
+  #custom-emoji-select {
+    width: 70px;
+    text-align: center;
+    font-size: 1.25rem;
+    @apply rounded border px-2 py-1;
+    background-color: var(--dropdown-bg);
+    color: var(--dropdown-text);
+    height: 32px;
+  }
+  #custom-title-popover button {
+    @apply rounded border px-3 py-1;
+    background-color: #FFA500;
+    color: #000000;
+    height: 28px;
+    align-self: flex-end;
+    min-width: 50px;
+  }
+  #custom-title-popover button:hover {
+    background-color: #FF8C00;
   }
   button:hover, select:hover, input[type="time"]:hover, input[type="number"]:hover {
     border-width: 3px; /* Make border thicker on hover */
