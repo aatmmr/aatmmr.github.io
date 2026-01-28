@@ -1,10 +1,11 @@
 ---
 import Layout from "@layouts/Layout.astro";
+import "@styles/timer.css";
 ---
 
 <Layout>
   <main id="main-content" class="h-screen w-full">
-    <section id="timer" class="h-screen w-full">
+    <section id="timer" class="h-full w-full flex flex-col">
       <div id="controls">
         <div id="theme-switch-container" style="display: inline-block;">
           <button id="theme-switch" class="rounded border px-4 py-2">🌝</button>
@@ -12,18 +13,22 @@ import Layout from "@layouts/Layout.astro";
         <div id="variant-controls">
           <div id="segmented-control" role="group" aria-label="Timer variant">
             <button id="variant-fixed" class="segment active" aria-pressed="true">⏱️ Fixed</button>
-            <button id="variant-target" class="segment" aria-pressed="false">🎯 Target</button>
+            <button id="variant-target" class="segment" aria-pressed="false">🏁 Target</button>
           </div>
         </div>
         <div id="inline-settings">
           <div id="fixed-settings">
-            <select id="time-select">
-              <option value="300">5 min</option>
-              <option value="600">10 min</option>
-              <option value="900">15 min</option>
-              <option value="1200">20 min</option>
-              <option value="custom">Custom</option>
-            </select>
+            <div class="custom-dropdown" id="time-dropdown">
+              <button type="button" class="dropdown-trigger" id="time-trigger">5 min</button>
+              <div class="dropdown-menu" id="time-menu" hidden>
+                <button type="button" class="dropdown-item" data-value="300">5 min</button>
+                <button type="button" class="dropdown-item" data-value="600">10 min</button>
+                <button type="button" class="dropdown-item" data-value="900">15 min</button>
+                <button type="button" class="dropdown-item" data-value="1200">20 min</button>
+                <button type="button" class="dropdown-item" data-value="custom">Custom</button>
+              </div>
+            </div>
+            <input type="hidden" id="time-select" value="300" />
             <div id="custom-time-popover" role="dialog" aria-label="Custom time" hidden>
               <label for="custom-minutes">Minutes:</label>
               <input type="number" id="custom-minutes" placeholder="Minutes" min="1" max="999" />
@@ -33,21 +38,88 @@ import Layout from "@layouts/Layout.astro";
           <div id="target-settings" hidden>
             <input type="time" id="target-time" />
           </div>
-          <select id="type-select">
-            <option value="break">☕️ Break</option>
-            <option value="lab">🧑‍🔬 Lab</option>
-            <option value="session">🎓 Session</option>
-          </select>
+          <div id="type-settings">
+            <div class="custom-dropdown" id="type-dropdown">
+              <button type="button" class="dropdown-trigger" id="type-trigger">☕️ Break</button>
+              <div class="dropdown-menu" id="type-menu" hidden>
+                <button type="button" class="dropdown-item" data-value="break">☕️ Break</button>
+                <button type="button" class="dropdown-item" data-value="lab">🧑‍🔬 Lab</button>
+                <button type="button" class="dropdown-item" data-value="session">🎓 Session</button>
+                <button type="button" class="dropdown-item" data-value="custom">✏️ Custom</button>
+              </div>
+            </div>
+            <input type="hidden" id="type-select" value="break" />
+            <div id="custom-title-popover" role="dialog" aria-label="Custom title" hidden>
+              <div class="popover-row">
+                <label for="custom-emoji-select">Emoji:</label>
+                <div class="custom-dropdown emoji-dropdown" id="emoji-dropdown">
+                  <button type="button" class="dropdown-trigger emoji-trigger" id="emoji-trigger">✏️</button>
+                  <div class="dropdown-menu emoji-menu" id="emoji-menu" hidden>
+                    <button type="button" class="dropdown-item emoji-item" data-value="✏️">✏️</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🚀">🚀</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="💡">💡</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🎯">🎯</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🔥">🔥</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="⭐">⭐</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="📚">📚</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="📝">📝</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🛠️">🛠️</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="💬">💬</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="💻">💻</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🖥️">🖥️</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="⌨️">⌨️</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🐛">🐛</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🔧">🔧</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="⚙️">⚙️</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🧪">🧪</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🔬">🔬</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="📊">📊</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="📈">📈</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🔒">🔒</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🔑">🔑</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="📦">📦</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🗂️">🗂️</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="📋">📋</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="✅">✅</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="❌">❌</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🔄">🔄</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="⚡">⚡</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🌐">🌐</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🧘">🧘</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🧘‍♀️">🧘‍♀️</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🏃">🏃</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="☕">☕</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🍵">🍵</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🎉">🎉</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🎊">🎊</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🌟">🌟</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🎵">🎵</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🎧">🎧</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🍕">🍕</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🌈">🌈</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="😴">😴</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="🧠">🧠</button>
+                    <button type="button" class="dropdown-item emoji-item" data-value="💪">💪</button>
+                  </div>
+                </div>
+                <input type="hidden" id="custom-emoji-select" value="✏️" />
+              </div>
+              <div class="popover-row">
+                <label for="custom-title-input">Title:</label>
+                <input type="text" id="custom-title-input" placeholder="Enter title" maxlength="50" />
+              </div>
+              <button id="custom-title-ok">OK</button>
+            </div>
+          </div>
         </div>
-        <div id="action-buttons">
-          <button id="start-pause-button">▶️ Start</button>
-          <button id="reset-button">🔄 Reset</button>
-        </div>
+      </div>
+      <div id="action-buttons">
+        <button id="start-pause-button">▶️ Start</button>
+        <button id="reset-button">🔄 Reset</button>
       </div>
       <div
         id="countdown"
-        class="flex h-screen w-full items-start justify-center"
-        style="margin-top: 40%;"
+        class="flex flex-1 w-full items-center justify-center"
       >
       </div>
     </section>
@@ -56,7 +128,9 @@ import Layout from "@layouts/Layout.astro";
 
 <script>
   const countdownElement = document.getElementById("countdown")!;
-  const timeSelect = document.getElementById("time-select")! as HTMLSelectElement;
+  const timeSelect = document.getElementById("time-select")! as HTMLInputElement;
+  const timeTrigger = document.getElementById("time-trigger")!;
+  const timeMenu = document.getElementById("time-menu")!;
   const customMinutesInput = document.getElementById("custom-minutes")! as HTMLInputElement;
   const customTimePopover = document.getElementById("custom-time-popover")!;
   const customTimeOkButton = document.getElementById("custom-time-ok")!;
@@ -68,6 +142,26 @@ import Layout from "@layouts/Layout.astro";
   const variantTarget = document.getElementById("variant-target")!;
   const fixedSettings = document.getElementById("fixed-settings")!;
   const targetSettings = document.getElementById("target-settings")!;
+  const typeSettings = document.getElementById("type-settings")!;
+  const customTitlePopover = document.getElementById("custom-title-popover")!;
+  const customTitleInput = document.getElementById("custom-title-input")! as HTMLInputElement;
+  const customEmojiSelect = document.getElementById("custom-emoji-select")! as HTMLInputElement;
+  const emojiTrigger = document.getElementById("emoji-trigger")!;
+  const emojiMenu = document.getElementById("emoji-menu")!;
+  const customTitleOkButton = document.getElementById("custom-title-ok")!;
+  const typeSelect = document.getElementById("type-select")! as HTMLInputElement;
+  const typeTrigger = document.getElementById("type-trigger")!;
+  const typeMenu = document.getElementById("type-menu")!;
+
+  const titleDefaults: Record<string, string> = {
+    break: "Take a break and be back in...",
+    lab: "Tinkering for another...",
+    session: "Session starts in...",
+    custom: "Custom"
+  };
+  let customTitle = "";
+  let customEmoji = "✏️";
+  let previousType = "break";
 
   const countdownDefaultText = "⏱️ time for...";
   const sessionStartingText = "Session starting soon...";
@@ -83,8 +177,9 @@ import Layout from "@layouts/Layout.astro";
   function updateTimer(timeLeft: number) {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
-    const selectedType = (document.getElementById("type-select") as HTMLSelectElement).value;
-    const emoji = selectedType === "break" ? "☕️" : selectedType === "lab" ? "🧑‍🔬" : "🎓";
+    const selectedType = typeSelect.value;
+    const emoji = selectedType === "break" ? "☕️" : selectedType === "lab" ? "🧑‍🔬" : selectedType === "session" ? "🎓" : customEmoji;
+    const title = selectedType === "custom" ? customTitle : titleDefaults[selectedType] || "Timer";
     const totalTime = initialTimeLeft > 0 ? initialTimeLeft : parseInt(timeSelect.value, 10);
     const progressPercentage = (timeLeft / totalTime) * 100;
 
@@ -94,11 +189,14 @@ import Layout from "@layouts/Layout.astro";
     }).join("");
 
     countdownElement.innerHTML = `
-      <div>${emoji}</div>
-      <div>${minutes}:${seconds.toString().padStart(2, "0")}</div>
-      <div id="progress-bar-container" style="position: relative; width: 100%; height: 10px; background-color: #e0e0e0; margin-top: 10px;">
-        ${segments}
-        <div id="progress-bar" style="position: absolute; right: ${100 - progressPercentage}%; width: ${progressPercentage}%; height: 100%; background-color: #282728; z-index: 0;"></div>
+      <div id="countdown-content">
+        <div id="countdown-emoji">${emoji}</div>
+        <div id="countdown-title">${title}</div>
+        <div id="countdown-time">${minutes}:${seconds.toString().padStart(2, "0")}</div>
+        <div id="progress-bar-container" style="position: relative; width: 80vw; height: 10px; background-color: #e0e0e0; margin-top: 10px;">
+          ${segments}
+          <div id="progress-bar" style="position: absolute; right: ${100 - progressPercentage}%; width: ${progressPercentage}%; height: 100%; background-color: #282728; z-index: 0;"></div>
+        </div>
       </div>
     `;
   }
@@ -200,6 +298,21 @@ import Layout from "@layouts/Layout.astro";
     startPauseButton.textContent = "▶️ Start";
     initialTimeLeft = 0;
     remainingTime = 0;
+    // Reset type and custom title
+    resetCustomTypeOption();
+    typeSelect.value = "break";
+    typeTrigger.textContent = "☕️ Break";
+    customTitle = "";
+    customEmoji = "✏️";
+    customTitleInput.value = "";
+    customEmojiSelect.value = "✏️";
+    emojiTrigger.textContent = "✏️";
+    closeCustomTitlePopover();
+    previousType = "break";
+    // Reset time dropdown
+    timeSelect.value = "300";
+    timeTrigger.textContent = "5 min";
+    resetCustomOption();
   }
 
   function updateVariantUI() {
@@ -232,20 +345,24 @@ import Layout from "@layouts/Layout.astro";
   function applyCustomTime() {
     const customMinutes = parseInt(customMinutesInput.value, 10);
     if (customMinutes && customMinutes > 0) {
-      const customOption = timeSelect.querySelector('option[value="custom"]') as HTMLOptionElement;
-      // Update the option's value to the seconds and text to show the minutes
-      customOption.value = (customMinutes * 60).toString();
-      customOption.textContent = `${customMinutes} min`;
-      timeSelect.value = customOption.value;
+      // Update the hidden input value and trigger text
+      timeSelect.value = (customMinutes * 60).toString();
+      timeTrigger.textContent = `${customMinutes} min`;
+      // Update the custom option in the menu
+      const customItem = timeMenu.querySelector('[data-value="custom"]') as HTMLButtonElement;
+      if (customItem) {
+        customItem.dataset.value = timeSelect.value;
+        customItem.textContent = `${customMinutes} min`;
+      }
     }
     closeCustomTimePopover();
   }
 
   function resetCustomOption() {
-    const customOption = timeSelect.querySelector('option[value^="custom"], option:last-child') as HTMLOptionElement;
-    if (customOption && customOption.textContent !== 'Custom') {
-      customOption.value = 'custom';
-      customOption.textContent = 'Custom';
+    const customItem = timeMenu.querySelector('.dropdown-item:last-child') as HTMLButtonElement;
+    if (customItem && customItem.textContent !== 'Custom') {
+      customItem.dataset.value = 'custom';
+      customItem.textContent = 'Custom';
     }
   }
 
@@ -265,15 +382,28 @@ import Layout from "@layouts/Layout.astro";
     updateVariantUI();
   });
 
-  timeSelect.addEventListener("change", () => {
-    closeCustomTimePopover(); // Always close first
-    if (timeSelect.value === "custom") {
-      openCustomTimePopover();
-    } else {
-      // Reset custom option when a preset is selected
-      resetCustomOption();
-      customMinutesInput.value = '';
-    }
+  // Time dropdown handling
+  timeTrigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeAllDropdowns();
+    timeMenu.hidden = !timeMenu.hidden;
+  });
+
+  timeMenu.querySelectorAll('.dropdown-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      const target = e.target as HTMLButtonElement;
+      const value = target.dataset.value!;
+      closeCustomTimePopover();
+      if (value === 'custom') {
+        openCustomTimePopover();
+      } else {
+        resetCustomOption();
+        customMinutesInput.value = '';
+        timeSelect.value = value;
+        timeTrigger.textContent = target.textContent!;
+      }
+      timeMenu.hidden = true;
+    });
   });
 
   customTimeOkButton.addEventListener("click", () => {
@@ -308,6 +438,122 @@ import Layout from "@layouts/Layout.astro";
 
 
 
+  // Custom title popover functions
+  function openCustomTitlePopover() {
+    customTitlePopover.hidden = false;
+    customTitleInput.focus();
+  }
+
+  function closeCustomTitlePopover() {
+    customTitlePopover.hidden = true;
+  }
+
+  function applyCustomTitle() {
+    const newCustomTitle = customTitleInput.value.trim();
+    const newCustomEmoji = customEmojiSelect.value || "✏️";
+    if (newCustomTitle) {
+      customTitle = newCustomTitle;
+      customEmoji = newCustomEmoji;
+      typeSelect.value = "custom";
+      // Update the trigger and menu item
+      typeTrigger.textContent = `${newCustomEmoji} ${newCustomTitle}`;
+      const customItem = typeMenu.querySelector('[data-value="custom"]') as HTMLButtonElement;
+      if (customItem) {
+        customItem.textContent = `${newCustomEmoji} ${newCustomTitle}`;
+      }
+    }
+    closeCustomTitlePopover();
+  }
+
+  function resetCustomTypeOption() {
+    const customItem = typeMenu.querySelector('[data-value="custom"]') as HTMLButtonElement;
+    if (customItem) {
+      customItem.textContent = '✏️ Custom';
+    }
+  }
+
+  // Type dropdown handling
+  typeTrigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeAllDropdowns();
+    typeMenu.hidden = !typeMenu.hidden;
+  });
+
+  typeMenu.querySelectorAll('.dropdown-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      const target = e.target as HTMLButtonElement;
+      const value = target.dataset.value!;
+      closeCustomTitlePopover();
+      if (value === 'custom') {
+        openCustomTitlePopover();
+      } else {
+        previousType = value;
+        typeSelect.value = value;
+        typeTrigger.textContent = target.textContent!;
+      }
+      typeMenu.hidden = true;
+    });
+  });
+
+  customTitleOkButton.addEventListener("click", () => {
+    applyCustomTitle();
+  });
+
+  // Close title popover when clicking outside
+  document.addEventListener("click", (e) => {
+    const target = e.target as Element;
+    if (!typeSettings.contains(target) && !customTitlePopover.hidden) {
+      closeCustomTitlePopover();
+    }
+  });
+
+  // Handle Enter and Escape keys in custom title input
+  customTitleInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      applyCustomTitle();
+    } else if (e.key === "Escape") {
+      closeCustomTitlePopover();
+    }
+  });
+
+  // Handle Escape key globally when title popover is open
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !customTitlePopover.hidden) {
+      closeCustomTitlePopover();
+    }
+  });
+
+  // Emoji dropdown handling
+  emojiTrigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    emojiMenu.hidden = !emojiMenu.hidden;
+  });
+
+  emojiMenu.querySelectorAll('.dropdown-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      const target = e.target as HTMLButtonElement;
+      const value = target.dataset.value!;
+      customEmojiSelect.value = value;
+      emojiTrigger.textContent = value;
+      emojiMenu.hidden = true;
+    });
+  });
+
+  // Close all dropdowns helper
+  function closeAllDropdowns() {
+    timeMenu.hidden = true;
+    typeMenu.hidden = true;
+    emojiMenu.hidden = true;
+  }
+
+  // Close dropdowns when clicking outside
+  document.addEventListener("click", (e) => {
+    const target = e.target as Element;
+    if (!target.closest('.custom-dropdown')) {
+      closeAllDropdowns();
+    }
+  });
+
   // Initial state
   countdownElement.textContent = countdownDefaultText;
   updateVariantUI();
@@ -325,229 +571,3 @@ import Layout from "@layouts/Layout.astro";
     themeSwitch.textContent = newTheme === "dark" ? "☀️" : "🌝";
   });
 </script>
-
-<style>
-  :root {
-    --dropdown-bg-light: #ffffff;
-    --dropdown-bg-dark: #333333;
-    --dropdown-text-light: #000000;
-    --dropdown-text-dark: #ffffff;
-    --progress-bar-bg-light: #e0e0e0;
-    --progress-bar-bg-dark: #333333;
-    --progress-bar-fill-light: #282728;
-    --progress-bar-fill-dark: #ffa500;
-  }
-
-  [data-theme="light"] {
-    --dropdown-bg: var(--dropdown-bg-light);
-    --dropdown-text: var(--dropdown-text-light);
-    --progress-bar-bg: var(--progress-bar-bg-light);
-    --progress-bar-fill: var(--progress-bar-fill-light);
-  }
-
-  [data-theme="dark"] {
-    --dropdown-bg: var(--dropdown-bg-dark);
-    --dropdown-text: var(--dropdown-text-dark);
-    --progress-bar-bg: var(--progress-bar-bg-dark);
-    --progress-bar-fill: var(--progress-bar-fill-dark);
-  }
-
-  #time-controls select,
-  #type-controls select {
-    background-color: var(--dropdown-bg);
-    color: var(--dropdown-text);
-  }
-
-  #progress-bar-container {
-    background-color: var(--progress-bar-bg);
-  }
-
-  #progress-bar {
-    background-color: var(--progress-bar-fill);
-  }
-
-  #timer {
-    @apply pb-6 pt-4 text-center;
-  }
-  #timer h1 {
-    @apply text-3xl font-bold;
-  }
-  #controls {
-    @apply mt-4 flex items-center justify-center gap-6;
-    flex-wrap: wrap;
-    padding: 0 1rem;
-  }
-
-  /* Responsive: stack vertically on small screens */
-  @media (max-width: 640px) {
-    #controls {
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-  }
-
-  /* Segmented control styles */
-  #variant-controls {
-    display: inline-block;
-  }
-  #segmented-control {
-    display: flex;
-    @apply rounded border;
-    overflow: hidden;
-    height: 32px;
-  }
-  #segmented-control .segment {
-    @apply px-6 py-1;
-    border: none;
-    border-radius: 0;
-    background-color: var(--dropdown-bg);
-    color: var(--dropdown-text);
-    cursor: pointer;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 140px;
-  }
-
-  @media (max-width: 640px) {
-    #segmented-control .segment {
-      width: 110px;
-      @apply px-3;
-    }
-  }
-  #segmented-control .segment:not(:last-child) {
-    border-right: 1px solid var(--dropdown-text);
-  }
-  #segmented-control .segment.active {
-    background-color: #FFA500;
-    color: #000000;
-  }
-  #segmented-control .segment:hover:not(.active) {
-    background-color: rgba(255, 165, 0, 0.3);
-  }
-
-  /* Inline settings */
-  #theme-switch {
-    height: 32px;
-    background-color: var(--dropdown-bg);
-    color: var(--dropdown-text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 60px;
-  }
-  #inline-settings {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-  }
-  #inline-settings select,
-  #inline-settings input {
-    @apply rounded border px-3 py-1;
-    background-color: var(--dropdown-bg);
-    color: var(--dropdown-text);
-    height: 32px;
-    min-width: 100px;
-  }
-
-  @media (max-width: 640px) {
-    #inline-settings {
-      gap: 8px;
-    }
-    #inline-settings select,
-    #inline-settings input {
-      min-width: 80px;
-      @apply px-2;
-    }
-  }
-  
-  /* Custom time popover */
-  #fixed-settings {
-    position: relative;
-  }
-  #custom-time-popover {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    margin-top: 8px;
-    @apply rounded border p-3;
-    background-color: rgb(var(--color-fill));
-    color: var(--dropdown-text);
-    z-index: 100;
-    min-width: 160px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    flex-direction: column;
-    gap: 8px;
-  }
-  #custom-time-popover:not([hidden]) {
-    display: flex;
-  }
-  #custom-time-popover label {
-    font-size: 0.875rem;
-    margin-bottom: 4px;
-  }
-  #custom-time-popover input {
-    width: 100%;
-    @apply rounded border px-2 py-1;
-    background-color: var(--dropdown-bg);
-    color: var(--dropdown-text);
-    height: 32px;
-  }
-  #custom-time-popover button {
-    @apply rounded border px-3 py-1;
-    background-color: #FFA500;
-    color: #000000;
-    height: 28px;
-    align-self: flex-end;
-    min-width: 50px;
-  }
-
-
-  #controls > button,
-  #action-buttons > button {
-    @apply rounded border px-6 py-2;
-    @apply flex items-center justify-center;
-    height: 32px;
-    min-width: 140px;
-  }
-
-  @media (max-width: 640px) {
-    #controls > button,
-    #action-buttons > button {
-      min-width: 100px;
-      @apply px-4;
-    }
-  }
-
-  /* Group action buttons together on mobile */
-  #action-buttons {
-    display: contents;
-  }
-
-  @media (max-width: 640px) {
-    #action-buttons {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: center;
-    }
-  }
-
-  #countdown {
-    @apply mt-4 font-mono text-6xl;
-    display: block;
-  }
-  button:hover, select:hover, input[type="time"]:hover, input[type="number"]:hover {
-    border-width: 3px; /* Make border thicker on hover */
-    border-color: #FFA500; /* Orange border color used on the website */
-    cursor: pointer;
-  }
-  #custom-time-popover button:hover {
-    background-color: #FF8C00;
-  }
-  #time-controls select:disabled:hover {
-    border-width: 1px;
-    border-color: initial;
-    cursor: not-allowed;
-  }
-</style>
