@@ -134,19 +134,15 @@ import Layout from "@layouts/Layout.astro";
 
       timeLeft = Math.floor((targetDate.getTime() - now.getTime()) / 1000);
     } else {
+      // Check if "custom" is selected but no custom time has been set yet
       if (timeSelect.value === "custom") {
-        const customMinutes = parseInt(customMinutesInput.value, 10);
-        if (!customMinutes || customMinutes <= 0) {
-          countdownElement.textContent = "⚠️ Please enter valid minutes";
-          setTimeout(() => {
-            countdownElement.textContent = countdownDefaultText;
-          }, 2000);
-          return;
-        }
-        timeLeft = customMinutes * 60;
-      } else {
-        timeLeft = parseInt(timeSelect.value, 10);
+        countdownElement.textContent = "⚠️ Please set a custom time";
+        setTimeout(() => {
+          countdownElement.textContent = countdownDefaultText;
+        }, 2000);
+        return;
       }
+      timeLeft = parseInt(timeSelect.value, 10);
     }
 
     initialTimeLeft = timeLeft;
@@ -182,6 +178,7 @@ import Layout from "@layouts/Layout.astro";
   function resetTimer() {
     clearInterval(timerInterval);
     targetTimeInput.value = "";
+    resetCustomOption();
     timeSelect.value = "300";
     customMinutesInput.value = "";
     closeCustomTimePopover();
@@ -220,6 +217,26 @@ import Layout from "@layouts/Layout.astro";
     customTimePopover.hidden = true;
   }
 
+  function applyCustomTime() {
+    const customMinutes = parseInt(customMinutesInput.value, 10);
+    if (customMinutes && customMinutes > 0) {
+      const customOption = timeSelect.querySelector('option[value="custom"]') as HTMLOptionElement;
+      // Update the option's value to the seconds and text to show the minutes
+      customOption.value = (customMinutes * 60).toString();
+      customOption.textContent = `${customMinutes} min`;
+      timeSelect.value = customOption.value;
+    }
+    closeCustomTimePopover();
+  }
+
+  function resetCustomOption() {
+    const customOption = timeSelect.querySelector('option[value^="custom"], option:last-child') as HTMLOptionElement;
+    if (customOption && customOption.textContent !== 'Custom') {
+      customOption.value = 'custom';
+      customOption.textContent = 'Custom';
+    }
+  }
+
   // Event listeners
   startButton.addEventListener("click", startTimer);
   stopButton.addEventListener("click", stopTimer);
@@ -241,11 +258,15 @@ import Layout from "@layouts/Layout.astro";
     closeCustomTimePopover(); // Always close first
     if (timeSelect.value === "custom") {
       openCustomTimePopover();
+    } else {
+      // Reset custom option when a preset is selected
+      resetCustomOption();
+      customMinutesInput.value = '';
     }
   });
 
   customTimeOkButton.addEventListener("click", () => {
-    closeCustomTimePopover();
+    applyCustomTime();
   });
 
   // Close popover when clicking outside
@@ -260,7 +281,9 @@ import Layout from "@layouts/Layout.astro";
 
   // Handle Enter and Escape keys in custom minutes input
   customMinutesInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === "Escape") {
+    if (e.key === "Enter") {
+      applyCustomTime();
+    } else if (e.key === "Escape") {
       closeCustomTimePopover();
     }
   });
