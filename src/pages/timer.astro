@@ -10,6 +10,9 @@ import "@styles/timer.css";
         <div id="theme-switch-container" style="display: inline-block;">
           <button id="theme-switch" class="rounded border px-4 py-2">🌝</button>
         </div>
+        <div id="fullscreen-button-container" style="display: inline-block;">
+          <button id="fullscreen-button" class="rounded border px-4 py-2">⤢</button>
+        </div>
         <div id="variant-controls">
           <div id="segmented-control" role="group" aria-label="Timer variant">
             <button id="variant-fixed" class="segment active" aria-pressed="true">⏱️ Fixed</button>
@@ -158,6 +161,8 @@ import "@styles/timer.css";
   const typeSelect = document.getElementById("type-select")! as HTMLInputElement;
   const typeTrigger = document.getElementById("type-trigger")!;
   const typeMenu = document.getElementById("type-menu")!;
+  const fullscreenButton = document.getElementById("fullscreen-button")!;
+  const timerSection = document.getElementById("timer")!;
 
   const titleDefaults: Record<string, string> = {
     break: "Take a break and be back in...",
@@ -575,5 +580,23 @@ import "@styles/timer.css";
     const newTheme = currentTheme === "dark" ? "light" : "dark";
     document.documentElement.setAttribute("data-theme", newTheme);
     themeSwitch.textContent = newTheme === "dark" ? "☀️" : "🌝";
+  });
+
+  // Fullscreen toggle
+  fullscreenButton.addEventListener("click", () => {
+    if (!document.fullscreenElement) {
+      timerSection.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  });
+
+  // Update fullscreen button when fullscreen state changes
+  document.addEventListener("fullscreenchange", () => {
+    if (document.fullscreenElement) {
+      fullscreenButton.textContent = "⤡";
+    } else {
+      fullscreenButton.textContent = "⤢";
+    }
   });
 </script>
