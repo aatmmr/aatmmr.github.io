@@ -38,11 +38,12 @@ import Layout from "@layouts/Layout.astro";
             <option value="lab">🧑‍🔬 Lab</option>
             <option value="session">🎓 Session</option>
           </select>
+          <input type="text" id="timer-title-input" placeholder="Title" value="Break" />
         </div>
-        <div id="action-buttons">
-          <button id="start-pause-button">▶️ Start</button>
-          <button id="reset-button">🔄 Reset</button>
-        </div>
+      </div>
+      <div id="action-buttons">
+        <button id="start-pause-button">▶️ Start</button>
+        <button id="reset-button">🔄 Reset</button>
       </div>
       <div
         id="countdown"
@@ -68,6 +69,15 @@ import Layout from "@layouts/Layout.astro";
   const variantTarget = document.getElementById("variant-target")!;
   const fixedSettings = document.getElementById("fixed-settings")!;
   const targetSettings = document.getElementById("target-settings")!;
+  const timerTitleInput = document.getElementById("timer-title-input")! as HTMLInputElement;
+  const typeSelect = document.getElementById("type-select")! as HTMLSelectElement;
+
+  const titleDefaults: Record<string, string> = {
+    break: "Break",
+    lab: "Lab",
+    session: "Session"
+  };
+  let previousType = "break";
 
   const countdownDefaultText = "⏱️ time for...";
   const sessionStartingText = "Session starting soon...";
@@ -85,6 +95,7 @@ import Layout from "@layouts/Layout.astro";
     const seconds = timeLeft % 60;
     const selectedType = (document.getElementById("type-select") as HTMLSelectElement).value;
     const emoji = selectedType === "break" ? "☕️" : selectedType === "lab" ? "🧑‍🔬" : "🎓";
+    const title = timerTitleInput.value || titleDefaults[selectedType] || "Timer";
     const totalTime = initialTimeLeft > 0 ? initialTimeLeft : parseInt(timeSelect.value, 10);
     const progressPercentage = (timeLeft / totalTime) * 100;
 
@@ -94,8 +105,9 @@ import Layout from "@layouts/Layout.astro";
     }).join("");
 
     countdownElement.innerHTML = `
-      <div>${emoji}</div>
-      <div>${minutes}:${seconds.toString().padStart(2, "0")}</div>
+      <div id="countdown-emoji">${emoji}</div>
+      <div id="countdown-title">${title}</div>
+      <div id="countdown-time">${minutes}:${seconds.toString().padStart(2, "0")}</div>
       <div id="progress-bar-container" style="position: relative; width: 100%; height: 10px; background-color: #e0e0e0; margin-top: 10px;">
         ${segments}
         <div id="progress-bar" style="position: absolute; right: ${100 - progressPercentage}%; width: ${progressPercentage}%; height: 100%; background-color: #282728; z-index: 0;"></div>
@@ -200,6 +212,10 @@ import Layout from "@layouts/Layout.astro";
     startPauseButton.textContent = "▶️ Start";
     initialTimeLeft = 0;
     remainingTime = 0;
+    // Reset title to default for current type
+    typeSelect.value = "break";
+    timerTitleInput.value = titleDefaults["break"];
+    previousType = "break";
   }
 
   function updateVariantUI() {
@@ -308,6 +324,19 @@ import Layout from "@layouts/Layout.astro";
 
 
 
+  // Update title when type changes (only if title matches previous default)
+  typeSelect.addEventListener("change", () => {
+    const currentTitle = timerTitleInput.value;
+    const previousDefault = titleDefaults[previousType];
+    const newType = typeSelect.value;
+    
+    // Only update if the current title matches the previous type's default
+    if (currentTitle === previousDefault) {
+      timerTitleInput.value = titleDefaults[newType] || newType;
+    }
+    previousType = newType;
+  });
+
   // Initial state
   countdownElement.textContent = countdownDefaultText;
   updateVariantUI();
@@ -373,7 +402,8 @@ import Layout from "@layouts/Layout.astro";
     @apply text-3xl font-bold;
   }
   #controls {
-    @apply mt-4 flex items-center justify-center gap-6;
+    @apply mt-4 flex items-center justify-center;
+    gap: 1rem;
     flex-wrap: wrap;
     padding: 0 1rem;
   }
@@ -382,7 +412,7 @@ import Layout from "@layouts/Layout.astro";
   @media (max-width: 640px) {
     #controls {
       flex-direction: column;
-      gap: 0.75rem;
+      gap: 1rem;
     }
   }
 
@@ -439,7 +469,7 @@ import Layout from "@layouts/Layout.astro";
   }
   #inline-settings {
     display: flex;
-    gap: 16px;
+    gap: 1rem;
     align-items: center;
   }
   #inline-settings select,
@@ -453,7 +483,7 @@ import Layout from "@layouts/Layout.astro";
 
   @media (max-width: 640px) {
     #inline-settings {
-      gap: 8px;
+      gap: 0.5rem;
     }
     #inline-settings select,
     #inline-settings input {
@@ -520,22 +550,43 @@ import Layout from "@layouts/Layout.astro";
     }
   }
 
-  /* Group action buttons together on mobile */
+  /* Group action buttons together on their own row */
   #action-buttons {
-    display: contents;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    width: 100%;
+    margin-top: 1rem;
   }
 
   @media (max-width: 640px) {
     #action-buttons {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: center;
+      gap: 0.5rem;
     }
   }
 
   #countdown {
     @apply mt-4 font-mono text-6xl;
     display: block;
+  }
+  #countdown-emoji {
+    font-size: 4rem;
+  }
+  #countdown-title {
+    font-size: 2rem;
+    margin-top: 0.5rem;
+    font-family: system-ui, sans-serif;
+  }
+  #countdown-time {
+    font-size: 6rem;
+    margin-top: 0.25rem;
+  }
+  #timer-title-input {
+    @apply rounded border px-3 py-1;
+    background-color: var(--dropdown-bg);
+    color: var(--dropdown-text);
+    height: 32px;
+    min-width: 120px;
   }
   button:hover, select:hover, input[type="time"]:hover, input[type="number"]:hover {
     border-width: 3px; /* Make border thicker on hover */
