@@ -39,9 +39,11 @@ import Layout from "@layouts/Layout.astro";
             <option value="session">🎓 Session</option>
           </select>
         </div>
-        <button id="start-button">▶️ Start</button>
-        <button id="stop-button">⏹️ Stop </button>
-        <button id="reset-button">🔄 Reset</button>
+        <div id="action-buttons">
+          <button id="start-button">▶️ Start</button>
+          <button id="stop-button">⏹️ Stop </button>
+          <button id="reset-button">🔄 Reset</button>
+        </div>
       </div>
       <div
         id="countdown"
@@ -339,6 +341,16 @@ import Layout from "@layouts/Layout.astro";
   }
   #controls {
     @apply mt-4 flex items-center justify-center gap-6;
+    flex-wrap: wrap;
+    padding: 0 1rem;
+  }
+
+  /* Responsive: stack vertically on small screens */
+  @media (max-width: 640px) {
+    #controls {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
   }
 
   /* Segmented control styles */
@@ -363,6 +375,13 @@ import Layout from "@layouts/Layout.astro";
     align-items: center;
     justify-content: center;
     width: 140px;
+  }
+
+  @media (max-width: 640px) {
+    #segmented-control .segment {
+      width: 110px;
+      @apply px-3;
+    }
   }
   #segmented-control .segment:not(:last-child) {
     border-right: 1px solid var(--dropdown-text);
@@ -397,6 +416,17 @@ import Layout from "@layouts/Layout.astro";
     color: var(--dropdown-text);
     height: 32px;
     min-width: 100px;
+  }
+
+  @media (max-width: 640px) {
+    #inline-settings {
+      gap: 8px;
+    }
+    #inline-settings select,
+    #inline-settings input {
+      min-width: 80px;
+      @apply px-2;
+    }
   }
   
   /* Custom time popover */
@@ -441,11 +471,33 @@ import Layout from "@layouts/Layout.astro";
   }
 
 
-  #controls > button {
+  #controls > button,
+  #action-buttons > button {
     @apply rounded border px-6 py-2;
     @apply flex items-center justify-center;
     height: 32px;
     min-width: 140px;
+  }
+
+  @media (max-width: 640px) {
+    #controls > button,
+    #action-buttons > button {
+      min-width: 100px;
+      @apply px-4;
+    }
+  }
+
+  /* Group action buttons together on mobile */
+  #action-buttons {
+    display: contents;
+  }
+
+  @media (max-width: 640px) {
+    #action-buttons {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+    }
   }
 
   #countdown {
