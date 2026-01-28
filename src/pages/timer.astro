@@ -40,8 +40,7 @@ import Layout from "@layouts/Layout.astro";
           </select>
         </div>
         <div id="action-buttons">
-          <button id="start-button">▶️ Start</button>
-          <button id="stop-button">⏹️ Stop </button>
+          <button id="start-pause-button">▶️ Start</button>
           <button id="reset-button">🔄 Reset</button>
         </div>
       </div>
@@ -61,8 +60,7 @@ import Layout from "@layouts/Layout.astro";
   const customMinutesInput = document.getElementById("custom-minutes")! as HTMLInputElement;
   const customTimePopover = document.getElementById("custom-time-popover")!;
   const customTimeOkButton = document.getElementById("custom-time-ok")!;
-  const startButton = document.getElementById("start-button")!;
-  const stopButton = document.getElementById("stop-button")!;
+  const startPauseButton = document.getElementById("start-pause-button")!;
   const resetButton = document.getElementById("reset-button")!;
   const themeSwitch = document.getElementById("theme-switch")!;
   const targetTimeInput = document.getElementById("target-time")! as HTMLInputElement;
@@ -72,12 +70,13 @@ import Layout from "@layouts/Layout.astro";
   const targetSettings = document.getElementById("target-settings")!;
 
   const countdownDefaultText = "⏱️ time for...";
-  const countdownStopText = "⏹️ Timer stopped";
   const sessionStartingText = "Session starting soon...";
   const targetTimeErrorText = "⚠️ Target time must be in the future";
 
   let timerInterval: string | number | NodeJS.Timeout | undefined;
   let currentVariant: "fixed" | "target" = "fixed";
+  let timerState: "idle" | "running" | "paused" = "idle";
+  let remainingTime: number = 0;
 
   let initialTimeLeft: number = 0;
 
@@ -104,8 +103,17 @@ import Layout from "@layouts/Layout.astro";
     `;
   }
 
+  function handleStartPause() {
+    if (timerState === "idle") {
+      startTimer();
+    } else if (timerState === "running") {
+      pauseTimer();
+    } else if (timerState === "paused") {
+      resumeTimer();
+    }
+  }
+
   function startTimer() {
-    clearInterval(timerInterval);
     let timeLeft: number;
 
     // Check which variant is selected
@@ -146,33 +154,36 @@ import Layout from "@layouts/Layout.astro";
     }
 
     initialTimeLeft = timeLeft;
-    updateTimer(timeLeft);
+    remainingTime = timeLeft;
+    runTimer();
+  }
 
-    startButton.style.display = "none";
-    stopButton.style.display = "";
+  function runTimer() {
+    timerState = "running";
+    startPauseButton.textContent = "⏸️ Pause";
+    updateTimer(remainingTime);
 
     timerInterval = setInterval(() => {
-      if (timeLeft > 0) {
-        timeLeft -= 1;
-        updateTimer(timeLeft);
+      if (remainingTime > 0) {
+        remainingTime -= 1;
+        updateTimer(remainingTime);
       } else {
         clearInterval(timerInterval);
+        timerState = "idle";
         countdownElement.textContent = sessionStartingText;
-        startButton.style.display = "";
-        stopButton.style.display = "none";
+        startPauseButton.textContent = "▶️ Start";
       }
     }, 1000);
   }
 
-  function stopTimer() {
+  function pauseTimer() {
     clearInterval(timerInterval);
-    countdownElement.textContent = countdownStopText;
-    setTimeout(() => {
-      countdownElement.textContent = countdownDefaultText;
-    }, 1000);
+    timerState = "paused";
+    startPauseButton.textContent = "▶️ Resume";
+  }
 
-    startButton.style.display = "";
-    stopButton.style.display = "none";
+  function resumeTimer() {
+    runTimer();
   }
 
   function resetTimer() {
@@ -185,9 +196,10 @@ import Layout from "@layouts/Layout.astro";
     currentVariant = "fixed";
     updateVariantUI();
     countdownElement.textContent = countdownDefaultText;
-    startButton.style.display = "";
-    stopButton.style.display = "none";
+    timerState = "idle";
+    startPauseButton.textContent = "▶️ Start";
     initialTimeLeft = 0;
+    remainingTime = 0;
   }
 
   function updateVariantUI() {
@@ -238,8 +250,7 @@ import Layout from "@layouts/Layout.astro";
   }
 
   // Event listeners
-  startButton.addEventListener("click", startTimer);
-  stopButton.addEventListener("click", stopTimer);
+  startPauseButton.addEventListener("click", handleStartPause);
   resetButton.addEventListener("click", resetTimer);
 
   variantFixed.addEventListener("click", () => {
@@ -298,7 +309,6 @@ import Layout from "@layouts/Layout.astro";
 
 
   // Initial state
-  stopButton.style.display = "none";
   countdownElement.textContent = countdownDefaultText;
   updateVariantUI();
   
