@@ -398,7 +398,7 @@
 #countdown-title {
   font-size: 2rem;
   margin-top: 1.5rem;
-  font-family: system-ui, sans-serif;
+  font-family: "IBM Plex Mono", monospace;
 }
 
 #countdown-time {
