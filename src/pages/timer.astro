@@ -4,7 +4,7 @@ import Layout from "@layouts/Layout.astro";
 
 <Layout>
   <main id="main-content" class="h-screen w-full">
-    <section id="timer" class="h-screen w-full">
+    <section id="timer" class="h-full w-full flex flex-col">
       <div id="controls">
         <div id="theme-switch-container" style="display: inline-block;">
           <button id="theme-switch" class="rounded border px-4 py-2">🌝</button>
@@ -47,8 +47,7 @@ import Layout from "@layouts/Layout.astro";
       </div>
       <div
         id="countdown"
-        class="flex h-screen w-full items-start justify-center"
-        style="margin-top: 40%;"
+        class="flex flex-1 w-full items-center justify-center"
       >
       </div>
     </section>
@@ -105,12 +104,14 @@ import Layout from "@layouts/Layout.astro";
     }).join("");
 
     countdownElement.innerHTML = `
-      <div id="countdown-emoji">${emoji}</div>
-      <div id="countdown-title">${title}</div>
-      <div id="countdown-time">${minutes}:${seconds.toString().padStart(2, "0")}</div>
-      <div id="progress-bar-container" style="position: relative; width: 100%; height: 10px; background-color: #e0e0e0; margin-top: 10px;">
-        ${segments}
-        <div id="progress-bar" style="position: absolute; right: ${100 - progressPercentage}%; width: ${progressPercentage}%; height: 100%; background-color: #282728; z-index: 0;"></div>
+      <div id="countdown-content">
+        <div id="countdown-emoji">${emoji}</div>
+        <div id="countdown-title">${title}</div>
+        <div id="countdown-time">${minutes}:${seconds.toString().padStart(2, "0")}</div>
+        <div id="progress-bar-container" style="position: relative; width: 80vw; height: 10px; background-color: #e0e0e0; margin-top: 10px;">
+          ${segments}
+          <div id="progress-bar" style="position: absolute; right: ${100 - progressPercentage}%; width: ${progressPercentage}%; height: 100%; background-color: #282728; z-index: 0;"></div>
+        </div>
       </div>
     `;
   }
@@ -397,6 +398,7 @@ import Layout from "@layouts/Layout.astro";
 
   #timer {
     @apply pb-6 pt-4 text-center;
+    max-width: none;
   }
   #timer h1 {
     @apply text-3xl font-bold;
@@ -567,19 +569,34 @@ import Layout from "@layouts/Layout.astro";
 
   #countdown {
     @apply mt-4 font-mono text-6xl;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: normal;
+    max-width: none;
+    padding: 0;
+    width: 80vw;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  #countdown-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 80vw;
   }
   #countdown-emoji {
     font-size: 4rem;
   }
   #countdown-title {
     font-size: 2rem;
-    margin-top: 0.5rem;
+    margin-top: 1.5rem;
     font-family: system-ui, sans-serif;
   }
   #countdown-time {
     font-size: 6rem;
-    margin-top: 0.25rem;
+    margin-top: 1.25rem;
   }
   #timer-title-input {
     @apply rounded border px-3 py-1;
