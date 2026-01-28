@@ -619,10 +619,14 @@ import "@styles/timer.css";
   // Help popover functions
   function openHelpPopover() {
     helpPopover.hidden = false;
+    // Move focus to close button for better accessibility
+    helpClose.focus();
   }
 
   function closeHelpPopover() {
     helpPopover.hidden = true;
+    // Return focus to help button
+    helpButton.focus();
   }
 
   helpButton.addEventListener("click", (e) => {
@@ -665,7 +669,10 @@ import "@styles/timer.css";
     if (time) {
       if (currentVariant === 'target') {
         // For target variant, expect HH:MM format
-        targetTimeInput.value = time;
+        // Validate time format (HH:MM)
+        if (/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time)) {
+          targetTimeInput.value = time;
+        }
       } else {
         // For fixed variant, expect minutes
         const minutes = parseInt(time, 10);
@@ -693,7 +700,7 @@ import "@styles/timer.css";
       if (type === 'custom') {
         // Get custom emoji and title
         const emoji = urlParams.get('emoji') || '✏️';
-        const title = urlParams.get('title') || 'Custom';
+        const title = (urlParams.get('title') || 'Custom').trim();
         
         customEmoji = emoji;
         customTitle = title;
@@ -723,7 +730,8 @@ import "@styles/timer.css";
     // Get autostart parameter
     const autostart = urlParams.get('autostart');
     if (autostart === 'true') {
-      // Start timer after a short delay to ensure everything is initialized
+      // Start timer after a short delay to ensure DOM is fully initialized
+      // and all event listeners are attached
       setTimeout(() => {
         startTimer();
       }, 100);
