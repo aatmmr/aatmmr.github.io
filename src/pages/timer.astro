@@ -799,8 +799,8 @@ import Layout from "@layouts/Layout.astro";
   }
   #custom-time-popover button {
     @apply rounded border px-3 py-1;
-    background-color: #FFA500;
-    color: #000000;
+    background-color: var(--dropdown-bg);
+    color: var(--dropdown-text);
     height: 28px;
     align-self: flex-end;
     min-width: 50px;
@@ -908,20 +908,20 @@ import Layout from "@layouts/Layout.astro";
   }
   #custom-title-popover button {
     @apply rounded border px-3 py-1;
-    background-color: #FFA500;
-    color: #000000;
+    background-color: var(--dropdown-bg);
+    color: var(--dropdown-text);
     height: 28px;
     align-self: flex-end;
     min-width: 50px;
   }
   #custom-title-popover button:hover {
-    background-color: #FF8C00;
+    background-color: rgba(255, 165, 0, 0.3);
   }
   button:hover:not(.segment), .dropdown-trigger:hover, input[type="time"]:hover, input[type="number"]:hover {
     background-color: rgba(255, 165, 0, 0.3);
     cursor: pointer;
   }
   #custom-time-popover button:hover {
-    background-color: #FF8C00;
+    background-color: rgba(255, 165, 0, 0.3);
   }
 </style>
