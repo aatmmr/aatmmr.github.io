@@ -39,9 +39,11 @@ import Layout from "@layouts/Layout.astro";
             <option value="session">🎓 Session</option>
           </select>
         </div>
-        <button id="start-button">▶️ Start</button>
-        <button id="stop-button">⏹️ Stop </button>
-        <button id="reset-button">🔄 Reset</button>
+        <div id="action-buttons">
+          <button id="start-button">▶️ Start</button>
+          <button id="stop-button">⏹️ Stop </button>
+          <button id="reset-button">🔄 Reset</button>
+        </div>
       </div>
       <div
         id="countdown"
@@ -132,19 +134,15 @@ import Layout from "@layouts/Layout.astro";
 
       timeLeft = Math.floor((targetDate.getTime() - now.getTime()) / 1000);
     } else {
+      // Check if "custom" is selected but no custom time has been set yet
       if (timeSelect.value === "custom") {
-        const customMinutes = parseInt(customMinutesInput.value, 10);
-        if (!customMinutes || customMinutes <= 0) {
-          countdownElement.textContent = "⚠️ Please enter valid minutes";
-          setTimeout(() => {
-            countdownElement.textContent = countdownDefaultText;
-          }, 2000);
-          return;
-        }
-        timeLeft = customMinutes * 60;
-      } else {
-        timeLeft = parseInt(timeSelect.value, 10);
+        countdownElement.textContent = "⚠️ Please set a custom time";
+        setTimeout(() => {
+          countdownElement.textContent = countdownDefaultText;
+        }, 2000);
+        return;
       }
+      timeLeft = parseInt(timeSelect.value, 10);
     }
 
     initialTimeLeft = timeLeft;
@@ -180,6 +178,7 @@ import Layout from "@layouts/Layout.astro";
   function resetTimer() {
     clearInterval(timerInterval);
     targetTimeInput.value = "";
+    resetCustomOption();
     timeSelect.value = "300";
     customMinutesInput.value = "";
     closeCustomTimePopover();
@@ -218,6 +217,26 @@ import Layout from "@layouts/Layout.astro";
     customTimePopover.hidden = true;
   }
 
+  function applyCustomTime() {
+    const customMinutes = parseInt(customMinutesInput.value, 10);
+    if (customMinutes && customMinutes > 0) {
+      const customOption = timeSelect.querySelector('option[value="custom"]') as HTMLOptionElement;
+      // Update the option's value to the seconds and text to show the minutes
+      customOption.value = (customMinutes * 60).toString();
+      customOption.textContent = `${customMinutes} min`;
+      timeSelect.value = customOption.value;
+    }
+    closeCustomTimePopover();
+  }
+
+  function resetCustomOption() {
+    const customOption = timeSelect.querySelector('option[value^="custom"], option:last-child') as HTMLOptionElement;
+    if (customOption && customOption.textContent !== 'Custom') {
+      customOption.value = 'custom';
+      customOption.textContent = 'Custom';
+    }
+  }
+
   // Event listeners
   startButton.addEventListener("click", startTimer);
   stopButton.addEventListener("click", stopTimer);
@@ -239,11 +258,15 @@ import Layout from "@layouts/Layout.astro";
     closeCustomTimePopover(); // Always close first
     if (timeSelect.value === "custom") {
       openCustomTimePopover();
+    } else {
+      // Reset custom option when a preset is selected
+      resetCustomOption();
+      customMinutesInput.value = '';
     }
   });
 
   customTimeOkButton.addEventListener("click", () => {
-    closeCustomTimePopover();
+    applyCustomTime();
   });
 
   // Close popover when clicking outside
@@ -258,7 +281,9 @@ import Layout from "@layouts/Layout.astro";
 
   // Handle Enter and Escape keys in custom minutes input
   customMinutesInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === "Escape") {
+    if (e.key === "Enter") {
+      applyCustomTime();
+    } else if (e.key === "Escape") {
       closeCustomTimePopover();
     }
   });
@@ -339,6 +364,16 @@ import Layout from "@layouts/Layout.astro";
   }
   #controls {
     @apply mt-4 flex items-center justify-center gap-6;
+    flex-wrap: wrap;
+    padding: 0 1rem;
+  }
+
+  /* Responsive: stack vertically on small screens */
+  @media (max-width: 640px) {
+    #controls {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
   }
 
   /* Segmented control styles */
@@ -363,6 +398,13 @@ import Layout from "@layouts/Layout.astro";
     align-items: center;
     justify-content: center;
     width: 140px;
+  }
+
+  @media (max-width: 640px) {
+    #segmented-control .segment {
+      width: 110px;
+      @apply px-3;
+    }
   }
   #segmented-control .segment:not(:last-child) {
     border-right: 1px solid var(--dropdown-text);
@@ -398,6 +440,17 @@ import Layout from "@layouts/Layout.astro";
     height: 32px;
     min-width: 100px;
   }
+
+  @media (max-width: 640px) {
+    #inline-settings {
+      gap: 8px;
+    }
+    #inline-settings select,
+    #inline-settings input {
+      min-width: 80px;
+      @apply px-2;
+    }
+  }
   
   /* Custom time popover */
   #fixed-settings {
@@ -409,7 +462,7 @@ import Layout from "@layouts/Layout.astro";
     left: 0;
     margin-top: 8px;
     @apply rounded border p-3;
-    background-color: var(--dropdown-bg);
+    background-color: rgb(var(--color-fill));
     color: var(--dropdown-text);
     z-index: 100;
     min-width: 160px;
@@ -441,11 +494,33 @@ import Layout from "@layouts/Layout.astro";
   }
 
 
-  #controls > button {
+  #controls > button,
+  #action-buttons > button {
     @apply rounded border px-6 py-2;
     @apply flex items-center justify-center;
     height: 32px;
     min-width: 140px;
+  }
+
+  @media (max-width: 640px) {
+    #controls > button,
+    #action-buttons > button {
+      min-width: 100px;
+      @apply px-4;
+    }
+  }
+
+  /* Group action buttons together on mobile */
+  #action-buttons {
+    display: contents;
+  }
+
+  @media (max-width: 640px) {
+    #action-buttons {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+    }
   }
 
   #countdown {
