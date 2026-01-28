@@ -615,7 +615,7 @@ import Layout from "@layouts/Layout.astro";
   .dropdown-item {
     @apply px-3 py-2;
     background: none;
-    border: none;
+    border: 1px solid transparent;
     text-align: left;
     cursor: pointer;
     width: 100%;
@@ -624,6 +624,7 @@ import Layout from "@layouts/Layout.astro";
   }
   .dropdown-item:hover {
     background-color: rgba(255, 165, 0, 0.3);
+    cursor: pointer;
   }
   
   /* Emoji dropdown specific styles */
@@ -695,7 +696,7 @@ import Layout from "@layouts/Layout.astro";
   }
   #segmented-control .segment {
     @apply px-6 py-1;
-    border: none;
+    border: 1px solid transparent;
     border-radius: 0;
     background-color: var(--dropdown-bg);
     color: var(--dropdown-text);
@@ -722,6 +723,7 @@ import Layout from "@layouts/Layout.astro";
   }
   #segmented-control .segment:hover:not(.active) {
     background-color: rgba(255, 165, 0, 0.3);
+    cursor: pointer;
   }
 
   /* Inline settings */
@@ -733,6 +735,10 @@ import Layout from "@layouts/Layout.astro";
     align-items: center;
     justify-content: center;
     min-width: 60px;
+  }
+  #theme-switch:hover {
+    background-color: rgba(255, 165, 0, 0.3);
+    cursor: pointer;
   }
   #inline-settings {
     display: flex;
@@ -911,9 +917,8 @@ import Layout from "@layouts/Layout.astro";
   #custom-title-popover button:hover {
     background-color: #FF8C00;
   }
-  button:hover, .dropdown-trigger:hover, input[type="time"]:hover, input[type="number"]:hover {
-    border-width: 3px; /* Make border thicker on hover */
-    border-color: #FFA500; /* Orange border color used on the website */
+  button:hover:not(.segment), .dropdown-trigger:hover, input[type="time"]:hover, input[type="number"]:hover {
+    background-color: rgba(255, 165, 0, 0.3);
     cursor: pointer;
   }
   #custom-time-popover button:hover {
