@@ -126,6 +126,42 @@ import "@styles/timer.css";
         <div class="flex items-center justify-center gap-2 text-sm">
           <span>Built with ❤️ and ✨ by</span>
           <img src="/logo.png" alt="aatmmr" class="w-6 h-6 rounded-full" />
+          <button id="help-button" class="ml-2 text-lg" title="Help" aria-label="Help">ℹ️</button>
+        </div>
+        <div id="help-popover" role="dialog" aria-label="URL Query Parameters Help" hidden>
+          <div class="popover-header">
+            <h3>🔗 URL Query Parameters</h3>
+            <button id="help-close" aria-label="Close">✕</button>
+          </div>
+          <div class="popover-content">
+            <p class="popover-intro">Bookmark your timer with URL parameters:</p>
+            <div class="param-group">
+              <div class="param-item">
+                <code>variant</code> - Timer type: <code>fixed</code> or <code>target</code>
+              </div>
+              <div class="param-item">
+                <code>time</code> - Duration in minutes (for fixed) or time as <code>HH:MM</code> (for target)
+              </div>
+              <div class="param-item">
+                <code>type</code> - Activity type: <code>break</code>, <code>lab</code>, <code>session</code>, or <code>custom</code>
+              </div>
+              <div class="param-item">
+                <code>emoji</code> - Custom emoji (when type is custom)
+              </div>
+              <div class="param-item">
+                <code>title</code> - Custom title (when type is custom)
+              </div>
+              <div class="param-item">
+                <code>autostart</code> - Auto-start timer: <code>true</code> or <code>false</code>
+              </div>
+            </div>
+            <div class="example-section">
+              <p class="example-title">Examples:</p>
+              <code class="example-code">?variant=fixed&time=10&type=break&autostart=true</code>
+              <code class="example-code">?variant=target&time=14:30&type=session</code>
+              <code class="example-code">?type=custom&emoji=🚀&title=Sprint&time=25</code>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -158,6 +194,9 @@ import "@styles/timer.css";
   const typeSelect = document.getElementById("type-select")! as HTMLInputElement;
   const typeTrigger = document.getElementById("type-trigger")!;
   const typeMenu = document.getElementById("type-menu")!;
+  const helpButton = document.getElementById("help-button")!;
+  const helpPopover = document.getElementById("help-popover")!;
+  const helpClose = document.getElementById("help-close")!;
 
   const titleDefaults: Record<string, string> = {
     break: "Take a break and be back in...",
@@ -576,4 +615,129 @@ import "@styles/timer.css";
     document.documentElement.setAttribute("data-theme", newTheme);
     themeSwitch.textContent = newTheme === "dark" ? "☀️" : "🌝";
   });
+
+  // Help popover functions
+  function openHelpPopover() {
+    helpPopover.hidden = false;
+    // Move focus to close button for better accessibility
+    helpClose.focus();
+  }
+
+  function closeHelpPopover() {
+    helpPopover.hidden = true;
+    // Return focus to help button
+    helpButton.focus();
+  }
+
+  helpButton.addEventListener("click", (e) => {
+    e.stopPropagation();
+    openHelpPopover();
+  });
+
+  helpClose.addEventListener("click", () => {
+    closeHelpPopover();
+  });
+
+  // Close help popover when clicking outside
+  document.addEventListener("click", (e) => {
+    const target = e.target as Element;
+    if (!helpPopover.contains(target) && !helpButton.contains(target) && !helpPopover.hidden) {
+      closeHelpPopover();
+    }
+  });
+
+  // Handle Escape key for help popover
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !helpPopover.hidden) {
+      closeHelpPopover();
+    }
+  });
+
+  // Parse URL query parameters and initialize timer
+  function initializeFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Get variant parameter (default: fixed)
+    const variant = urlParams.get('variant');
+    if (variant === 'target') {
+      currentVariant = 'target';
+      updateVariantUI();
+    }
+    
+    // Get time parameter
+    const time = urlParams.get('time');
+    if (time) {
+      if (currentVariant === 'target') {
+        // For target variant, expect HH:MM format
+        // Validate time format (HH:MM)
+        if (/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time)) {
+          targetTimeInput.value = time;
+        }
+      } else {
+        // For fixed variant, expect minutes
+        const minutes = parseInt(time, 10);
+        if (!isNaN(minutes) && minutes > 0) {
+          const seconds = minutes * 60;
+          timeSelect.value = seconds.toString();
+          timeTrigger.textContent = `${minutes} min`;
+          
+          // Update custom option if it's not a standard value
+          const standardValues = ['300', '600', '900', '1200'];
+          if (!standardValues.includes(seconds.toString())) {
+            const customItem = timeMenu.querySelector('[data-value="custom"]') as HTMLButtonElement;
+            if (customItem) {
+              customItem.dataset.value = seconds.toString();
+              customItem.textContent = `${minutes} min`;
+            }
+          }
+        }
+      }
+    }
+    
+    // Get type parameter (default: break)
+    const type = urlParams.get('type');
+    if (type) {
+      if (type === 'custom') {
+        // Get custom emoji and title
+        const emoji = urlParams.get('emoji') || '✏️';
+        const title = (urlParams.get('title') || 'Custom').trim();
+        
+        customEmoji = emoji;
+        customTitle = title;
+        customEmojiSelect.value = emoji;
+        emojiTrigger.textContent = emoji;
+        customTitleInput.value = title;
+        
+        typeSelect.value = 'custom';
+        typeTrigger.textContent = `${emoji} ${title}`;
+        
+        const customItem = typeMenu.querySelector('[data-value="custom"]') as HTMLButtonElement;
+        if (customItem) {
+          customItem.textContent = `${emoji} ${title}`;
+        }
+      } else if (['break', 'lab', 'session'].includes(type)) {
+        typeSelect.value = type;
+        const typeLabels: Record<string, string> = {
+          break: '☕️ Break',
+          lab: '🧑‍🔬 Lab',
+          session: '🎓 Session'
+        };
+        typeTrigger.textContent = typeLabels[type];
+        previousType = type;
+      }
+    }
+    
+    // Get autostart parameter
+    const autostart = urlParams.get('autostart');
+    if (autostart === 'true') {
+      // Start timer after a short delay to ensure DOM is fully initialized
+      // and all event listeners are attached
+      setTimeout(() => {
+        startTimer();
+      }, 100);
+    }
+  }
+
+  // Initialize from URL on page load
+  initializeFromURL();
 </script>
