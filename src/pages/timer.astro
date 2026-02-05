@@ -125,6 +125,48 @@ import "@styles/timer.css";
         class="flex flex-1 w-full items-center justify-center"
       >
       </div>
+      <div id="timer-footer" role="contentinfo" class="w-full text-center py-4">
+        <div class="flex items-center justify-center gap-2 text-sm">
+          <span>Built with ❤️ and ✨ by</span>
+          <img src="/logo.png" alt="aatmmr" class="w-6 h-6 rounded-full" />
+          <button id="help-button" class="ml-2 text-lg" title="Help" aria-label="Help">ℹ️</button>
+        </div>
+        <div id="help-popover" role="dialog" aria-label="URL Query Parameters Help" hidden>
+          <div class="popover-header">
+            <h3>🔗 URL Query Parameters</h3>
+            <button id="help-close" aria-label="Close">✕</button>
+          </div>
+          <div class="popover-content">
+            <p class="popover-intro">Bookmark your timer with URL parameters:</p>
+            <div class="param-group">
+              <div class="param-item">
+                <code>variant</code> - Timer type: <code>fixed</code> or <code>target</code>
+              </div>
+              <div class="param-item">
+                <code>time</code> - Duration in minutes (for fixed) or time as <code>HH:MM</code> (for target)
+              </div>
+              <div class="param-item">
+                <code>type</code> - Activity type: <code>break</code>, <code>lab</code>, <code>session</code>, or <code>custom</code>
+              </div>
+              <div class="param-item">
+                <code>emoji</code> - Custom emoji (when type is custom)
+              </div>
+              <div class="param-item">
+                <code>title</code> - Custom title (when type is custom)
+              </div>
+              <div class="param-item">
+                <code>autostart</code> - Auto-start timer: <code>true</code> or <code>false</code>
+              </div>
+            </div>
+            <div class="example-section">
+              <p class="example-title">Examples:</p>
+              <code class="example-code">?variant=fixed&time=10&type=break&autostart=true</code>
+              <code class="example-code">?variant=target&time=14:30&type=session</code>
+              <code class="example-code">?type=custom&emoji=🚀&title=Sprint&time=25</code>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 </Layout>
@@ -157,6 +199,9 @@ import "@styles/timer.css";
   const typeMenu = document.getElementById("type-menu")!;
   const fullscreenButton = document.getElementById("fullscreen-button")!;
   const timerSection = document.getElementById("timer")!;
+  const helpButton = document.getElementById("help-button")!;
+  const helpPopover = document.getElementById("help-popover")!;
+  const helpClose = document.getElementById("help-close")!;
 
   const titleDefaults: Record<string, string> = {
     break: "Take a break and be back in...",
@@ -178,6 +223,7 @@ import "@styles/timer.css";
   let remainingTime: number = 0;
 
   let initialTimeLeft: number = 0;
+  let timerStartTime: number = 0; // Track when timer started for elapsed time calculation
 
   function updateTimer(timeLeft: number) {
     const minutes = Math.floor(timeLeft / 60);
@@ -258,6 +304,7 @@ import "@styles/timer.css";
 
     initialTimeLeft = timeLeft;
     remainingTime = timeLeft;
+    timerStartTime = timeLeft; // Track initial time for elapsed calculations
     runTimer();
   }
 
@@ -289,6 +336,44 @@ import "@styles/timer.css";
     runTimer();
   }
 
+  function handleSettingsChange() {
+    // Only recalculate if timer is running or paused
+    if (timerState === "running" || timerState === "paused") {
+      if (currentVariant === "fixed") {
+        // Recalculate based on new time setting
+        const newTotalTime = parseInt(timeSelect.value, 10);
+        // Calculate elapsed time from the original start
+        const elapsedTime = timerStartTime > 0 ? timerStartTime - remainingTime : 0;
+        initialTimeLeft = newTotalTime;
+        // Maintain elapsed time proportion when time changes
+        remainingTime = Math.max(0, newTotalTime - elapsedTime);
+        timerStartTime = newTotalTime; // Update start time for future calculations
+      } else if (currentVariant === "target") {
+        // Recalculate remaining time based on new target time
+        if (targetTimeInput.value) {
+          const now = new Date();
+          const [hours, minutes] = targetTimeInput.value.split(":").map(Number);
+          const targetDate = new Date();
+          targetDate.setHours(hours, minutes, 0, 0);
+          
+          if (targetDate > now) {
+            const newTimeLeft = Math.floor((targetDate.getTime() - now.getTime()) / 1000);
+            initialTimeLeft = newTimeLeft;
+            remainingTime = newTimeLeft;
+            timerStartTime = newTimeLeft;
+          } else {
+            // Target time is in the past - set both to 0 for consistency
+            initialTimeLeft = 0;
+            remainingTime = 0;
+            timerStartTime = 0;
+          }
+        }
+      }
+      // Update the display immediately
+      updateTimer(remainingTime);
+    }
+  }
+
   function resetTimer() {
     clearInterval(timerInterval);
     targetTimeInput.value = "";
@@ -303,6 +388,7 @@ import "@styles/timer.css";
     startPauseButton.textContent = "▶️ Start";
     initialTimeLeft = 0;
     remainingTime = 0;
+    timerStartTime = 0; // Reset start time tracker
     // Reset type and custom title
     resetCustomTypeOption();
     typeSelect.value = "break";
@@ -359,6 +445,7 @@ import "@styles/timer.css";
         customItem.dataset.value = timeSelect.value;
         customItem.textContent = `${customMinutes} min`;
       }
+      handleSettingsChange(); // Update timer if running
     }
     closeCustomTimePopover();
   }
@@ -379,12 +466,14 @@ import "@styles/timer.css";
     currentVariant = "fixed";
     closeCustomTimePopover(); // Close popover when switching variants
     updateVariantUI();
+    handleSettingsChange(); // Update timer if running
   });
 
   variantTarget.addEventListener("click", () => {
     currentVariant = "target";
     closeCustomTimePopover(); // Close popover when switching variants
     updateVariantUI();
+    handleSettingsChange(); // Update timer if running
   });
 
   // Time dropdown handling
@@ -406,6 +495,7 @@ import "@styles/timer.css";
         customMinutesInput.value = '';
         timeSelect.value = value;
         timeTrigger.textContent = target.textContent!;
+        handleSettingsChange(); // Update timer if running
       }
       timeMenu.hidden = true;
     });
@@ -466,6 +556,7 @@ import "@styles/timer.css";
       if (customItem) {
         customItem.textContent = `${newCustomEmoji} ${newCustomTitle}`;
       }
+      handleSettingsChange(); // Update timer if running
     }
     closeCustomTitlePopover();
   }
@@ -495,6 +586,7 @@ import "@styles/timer.css";
         previousType = value;
         typeSelect.value = value;
         typeTrigger.textContent = target.textContent!;
+        handleSettingsChange(); // Update timer if running
       }
       typeMenu.hidden = true;
     });
@@ -569,6 +661,11 @@ import "@styles/timer.css";
   const currentMinute = now.getMinutes().toString().padStart(2, '0');
   targetTimeInput.value = `${currentHour}:${currentMinute}`;
 
+  // Add event listener for target time changes
+  targetTimeInput.addEventListener("change", () => {
+    handleSettingsChange(); // Update timer if running
+  });
+
   themeSwitch.addEventListener("click", () => {
     const currentTheme = document.documentElement.getAttribute("data-theme");
     const newTheme = currentTheme === "dark" ? "light" : "dark";
@@ -593,4 +690,128 @@ import "@styles/timer.css";
       fullscreenButton.textContent = "⤢";
     }
   });
+  // Help popover functions
+  function openHelpPopover() {
+    helpPopover.hidden = false;
+    // Move focus to close button for better accessibility
+    helpClose.focus();
+  }
+
+  function closeHelpPopover() {
+    helpPopover.hidden = true;
+    // Return focus to help button
+    helpButton.focus();
+  }
+
+  helpButton.addEventListener("click", (e) => {
+    e.stopPropagation();
+    openHelpPopover();
+  });
+
+  helpClose.addEventListener("click", () => {
+    closeHelpPopover();
+  });
+
+  // Close help popover when clicking outside
+  document.addEventListener("click", (e) => {
+    const target = e.target as Element;
+    if (!helpPopover.contains(target) && !helpButton.contains(target) && !helpPopover.hidden) {
+      closeHelpPopover();
+    }
+  });
+
+  // Handle Escape key for help popover
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !helpPopover.hidden) {
+      closeHelpPopover();
+    }
+  });
+
+  // Parse URL query parameters and initialize timer
+  function initializeFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Get variant parameter (default: fixed)
+    const variant = urlParams.get('variant');
+    if (variant === 'target') {
+      currentVariant = 'target';
+      updateVariantUI();
+    }
+    
+    // Get time parameter
+    const time = urlParams.get('time');
+    if (time) {
+      if (currentVariant === 'target') {
+        // For target variant, expect HH:MM format
+        // Validate time format (HH:MM)
+        if (/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time)) {
+          targetTimeInput.value = time;
+        }
+      } else {
+        // For fixed variant, expect minutes
+        const minutes = parseInt(time, 10);
+        if (!isNaN(minutes) && minutes > 0) {
+          const seconds = minutes * 60;
+          timeSelect.value = seconds.toString();
+          timeTrigger.textContent = `${minutes} min`;
+          
+          // Update custom option if it's not a standard value
+          const standardValues = ['300', '600', '900', '1200'];
+          if (!standardValues.includes(seconds.toString())) {
+            const customItem = timeMenu.querySelector('[data-value="custom"]') as HTMLButtonElement;
+            if (customItem) {
+              customItem.dataset.value = seconds.toString();
+              customItem.textContent = `${minutes} min`;
+            }
+          }
+        }
+      }
+    }
+    
+    // Get type parameter (default: break)
+    const type = urlParams.get('type');
+    if (type) {
+      if (type === 'custom') {
+        // Get custom emoji and title
+        const emoji = urlParams.get('emoji') || '✏️';
+        const title = (urlParams.get('title') || 'Custom').trim();
+        
+        customEmoji = emoji;
+        customTitle = title;
+        customEmojiSelect.value = emoji;
+        emojiTrigger.textContent = emoji;
+        customTitleInput.value = title;
+        
+        typeSelect.value = 'custom';
+        typeTrigger.textContent = `${emoji} ${title}`;
+        
+        const customItem = typeMenu.querySelector('[data-value="custom"]') as HTMLButtonElement;
+        if (customItem) {
+          customItem.textContent = `${emoji} ${title}`;
+        }
+      } else if (['break', 'lab', 'session'].includes(type)) {
+        typeSelect.value = type;
+        const typeLabels: Record<string, string> = {
+          break: '☕️ Break',
+          lab: '🧑‍🔬 Lab',
+          session: '🎓 Session'
+        };
+        typeTrigger.textContent = typeLabels[type];
+        previousType = type;
+      }
+    }
+    
+    // Get autostart parameter
+    const autostart = urlParams.get('autostart');
+    if (autostart === 'true') {
+      // Start timer after a short delay to ensure DOM is fully initialized
+      // and all event listeners are attached
+      setTimeout(() => {
+        startTimer();
+      }, 100);
+    }
+  }
+
+  // Initialize from URL on page load
+  initializeFromURL();
 </script>
