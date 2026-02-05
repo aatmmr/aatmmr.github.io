@@ -144,6 +144,7 @@
   padding-top: 1rem;
   text-align: center;
   max-width: none;
+  background-color: rgb(var(--color-fill));
 }
 
 #timer h1 {
