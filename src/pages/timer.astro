@@ -218,6 +218,7 @@ import "@styles/timer.css";
   let remainingTime: number = 0;
 
   let initialTimeLeft: number = 0;
+  let timerStartTime: number = 0; // Track when timer started for elapsed time calculation
 
   function updateTimer(timeLeft: number) {
     const minutes = Math.floor(timeLeft / 60);
@@ -298,6 +299,7 @@ import "@styles/timer.css";
 
     initialTimeLeft = timeLeft;
     remainingTime = timeLeft;
+    timerStartTime = timeLeft; // Track initial time for elapsed calculations
     runTimer();
   }
 
@@ -329,6 +331,44 @@ import "@styles/timer.css";
     runTimer();
   }
 
+  function handleSettingsChange() {
+    // Only recalculate if timer is running or paused
+    if (timerState === "running" || timerState === "paused") {
+      if (currentVariant === "fixed") {
+        // Recalculate based on new time setting
+        const newTotalTime = parseInt(timeSelect.value, 10);
+        // Calculate elapsed time from the original start
+        const elapsedTime = timerStartTime > 0 ? timerStartTime - remainingTime : 0;
+        initialTimeLeft = newTotalTime;
+        // Maintain elapsed time proportion when time changes
+        remainingTime = Math.max(0, newTotalTime - elapsedTime);
+        timerStartTime = newTotalTime; // Update start time for future calculations
+      } else if (currentVariant === "target") {
+        // Recalculate remaining time based on new target time
+        if (targetTimeInput.value) {
+          const now = new Date();
+          const [hours, minutes] = targetTimeInput.value.split(":").map(Number);
+          const targetDate = new Date();
+          targetDate.setHours(hours, minutes, 0, 0);
+          
+          if (targetDate > now) {
+            const newTimeLeft = Math.floor((targetDate.getTime() - now.getTime()) / 1000);
+            initialTimeLeft = newTimeLeft;
+            remainingTime = newTimeLeft;
+            timerStartTime = newTimeLeft;
+          } else {
+            // Target time is in the past - set both to 0 for consistency
+            initialTimeLeft = 0;
+            remainingTime = 0;
+            timerStartTime = 0;
+          }
+        }
+      }
+      // Update the display immediately
+      updateTimer(remainingTime);
+    }
+  }
+
   function resetTimer() {
     clearInterval(timerInterval);
     targetTimeInput.value = "";
@@ -343,6 +383,7 @@ import "@styles/timer.css";
     startPauseButton.textContent = "▶️ Start";
     initialTimeLeft = 0;
     remainingTime = 0;
+    timerStartTime = 0; // Reset start time tracker
     // Reset type and custom title
     resetCustomTypeOption();
     typeSelect.value = "break";
@@ -399,6 +440,7 @@ import "@styles/timer.css";
         customItem.dataset.value = timeSelect.value;
         customItem.textContent = `${customMinutes} min`;
       }
+      handleSettingsChange(); // Update timer if running
     }
     closeCustomTimePopover();
   }
@@ -419,12 +461,14 @@ import "@styles/timer.css";
     currentVariant = "fixed";
     closeCustomTimePopover(); // Close popover when switching variants
     updateVariantUI();
+    handleSettingsChange(); // Update timer if running
   });
 
   variantTarget.addEventListener("click", () => {
     currentVariant = "target";
     closeCustomTimePopover(); // Close popover when switching variants
     updateVariantUI();
+    handleSettingsChange(); // Update timer if running
   });
 
   // Time dropdown handling
@@ -446,6 +490,7 @@ import "@styles/timer.css";
         customMinutesInput.value = '';
         timeSelect.value = value;
         timeTrigger.textContent = target.textContent!;
+        handleSettingsChange(); // Update timer if running
       }
       timeMenu.hidden = true;
     });
@@ -506,6 +551,7 @@ import "@styles/timer.css";
       if (customItem) {
         customItem.textContent = `${newCustomEmoji} ${newCustomTitle}`;
       }
+      handleSettingsChange(); // Update timer if running
     }
     closeCustomTitlePopover();
   }
@@ -535,6 +581,7 @@ import "@styles/timer.css";
         previousType = value;
         typeSelect.value = value;
         typeTrigger.textContent = target.textContent!;
+        handleSettingsChange(); // Update timer if running
       }
       typeMenu.hidden = true;
     });
@@ -608,6 +655,11 @@ import "@styles/timer.css";
   const currentHour = now.getHours().toString().padStart(2, '0');
   const currentMinute = now.getMinutes().toString().padStart(2, '0');
   targetTimeInput.value = `${currentHour}:${currentMinute}`;
+
+  // Add event listener for target time changes
+  targetTimeInput.addEventListener("change", () => {
+    handleSettingsChange(); // Update timer if running
+  });
 
   themeSwitch.addEventListener("click", () => {
     const currentTheme = document.documentElement.getAttribute("data-theme");
