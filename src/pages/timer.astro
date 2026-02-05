@@ -11,7 +11,7 @@ import "@styles/timer.css";
           <button id="theme-switch" class="rounded border px-4 py-2">🌝</button>
         </div>
         <div id="fullscreen-button-container" style="display: inline-block;">
-          <button id="fullscreen-button" class="rounded border px-4 py-2">⤢</button>
+          <button id="fullscreen-button" class="rounded border px-4 py-2">⛶</button>
         </div>
         <div id="variant-controls">
           <div id="segmented-control" role="group" aria-label="Timer variant">
@@ -685,9 +685,9 @@ import "@styles/timer.css";
   // Update fullscreen button when fullscreen state changes
   document.addEventListener("fullscreenchange", () => {
     if (document.fullscreenElement) {
-      fullscreenButton.textContent = "⤡";
+      fullscreenButton.textContent = "✕";
     } else {
-      fullscreenButton.textContent = "⤢";
+      fullscreenButton.textContent = "⛶";
     }
   });
   // Help popover functions
