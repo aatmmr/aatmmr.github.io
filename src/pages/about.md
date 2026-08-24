@@ -3,7 +3,7 @@ layout: ../layouts/AboutLayout.astro
 title: "About"
 ---
 
-My name is Maik, and I am a Senior Solution Architect, GitHub Trainer, and Octowizard at <a href="https://solidify.dev/">Solidify</a>. I spend most of my day with GitHub, deep-diving into any corner of the platform and becoming an Octowizard, and I like to share my knowledge and findings.
+My name is Maik, and I am a Principal Consultant, GitHub Trainer, and Octowizard at <a href="https://eficode.cpom/">Eficode</a>. I spend most of my day with GitHub, deep-diving into any corner of the platform and becoming an Octowizard, and I like to share my knowledge and findings.
 
 ## Badges
 
